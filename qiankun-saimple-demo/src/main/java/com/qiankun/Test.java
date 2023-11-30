@@ -1,6 +1,7 @@
 package com.qiankun;
 
 import com.qiankun.service.OrderService;
+import com.qiankun.service.User;
 import com.qiankun.service.UserService;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -18,6 +19,7 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.annotation.PostConstruct;
@@ -37,14 +39,24 @@ public class Test {
 		// OrderService orderService1 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService2 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService3 = applicationContext.getBean("orderService", OrderService.class);
-		UserService userService = applicationContext.getBean("userService", UserService.class);
-		OrderService orderService1 = userService.getOrderService();
-		OrderService orderService2 = userService.getOrderService();
-		OrderService orderService3 = userService.getOrderService();
-		System.out.println("orderService1 = " + orderService1);
-		System.out.println("orderService2 = " + orderService2);
-		System.out.println("orderService3 = " + orderService3);
-		applicationContext.close();
+		// UserService userService = applicationContext.getBean("userService", UserService.class);
+		// OrderService orderService1 = userService.getOrderService();
+		// OrderService orderService2 = userService.getOrderService();
+		// OrderService orderService3 = userService.getOrderService();
+		// System.out.println("orderService1 = " + orderService1);
+		// System.out.println("orderService2 = " + orderService2);
+		// System.out.println("orderService3 = " + orderService3);
+		// applicationContext.close();
+
+		AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader = new AnnotatedBeanDefinitionReader(applicationContext);
+		annotatedBeanDefinitionReader.registerBean(UserService.class);
+
+		/*
+			测试事务
+		 */
+		UserService userService = applicationContext.getBean(UserService.class);
+		userService.a();
+
 
 
 		// applicationContext.publishEvent("发布事件");

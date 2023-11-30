@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class UserService implements ApplicationContextAware {
@@ -34,18 +36,19 @@ public class UserService implements ApplicationContextAware {
     }
 
 
-    // @Transactional(rollbackForClassName = {},rollbackFor = {},noRollbackFor = {},noRollbackForClassName = {})
-    // public void a(){
-    //     jdbcTemplate.execute("INSERT INTO `test`.`t_user`(`id`, `name`, `age`) VALUES (1, '田坤1', 18);");
-    //     try {
-    //         userService.b();
-    //     } catch (Exception e) {
-    //     }
-    // }
-    //
-    // @Transactional
-    // public void b(){
-    //     jdbcTemplate.execute("INSERT INTO `test`.`t_user`(`id`, `name`, `age`) VALUES (2, '田坤2', 18);");
-    //     throw new NullPointerException();
-    // }
+    @Transactional(rollbackForClassName = {},rollbackFor = {},noRollbackFor = {},noRollbackForClassName = {})
+    public void a(){
+        jdbcTemplate.execute("INSERT INTO `test`.`t_user`(`id`, `user_name`, `age`) VALUES (1, '田坤1', 18);");
+        try {
+            userService.b();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Transactional(propagation = Propagation.NEVER)
+    public void b(){
+        jdbcTemplate.execute("INSERT INTO `test`.`t_user`(`id`, `user_name`, `age`) VALUES (2, '田坤2', 18);");
+        throw new NullPointerException();
+    }
 }

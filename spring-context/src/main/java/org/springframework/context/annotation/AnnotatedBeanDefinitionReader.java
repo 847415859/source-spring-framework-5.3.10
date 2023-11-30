@@ -34,6 +34,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 用于以注解编程方式注册 bean 类的便捷适配器。
+ * 这是ClassPathBeanDefinitionScanner的替代方案，应用相同的注释解析，但仅适用于显式注册的类
+ *
  * Convenient adapter for programmatic registration of bean classes.
  *
  * <p>This is an alternative to {@link ClassPathBeanDefinitionScanner}, applying
@@ -266,9 +269,11 @@ public class AnnotatedBeanDefinitionReader {
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
+				// 是否添加 @Primary 注解
 				if (Primary.class == qualifier) {
 					abd.setPrimary(true);
 				}
+				// 是否延迟加载
 				else if (Lazy.class == qualifier) {
 					abd.setLazyInit(true);
 				}

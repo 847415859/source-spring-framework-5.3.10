@@ -32,6 +32,8 @@ import org.springframework.util.Assert;
 public interface AttributeAccessor {
 
 	/**
+	 * 设置bean中属性的值
+	 *
 	 * Set the attribute defined by {@code name} to the supplied {@code value}.
 	 * <p>If {@code value} is {@code null}, the attribute is {@link #removeAttribute removed}.
 	 * <p>In general, users should take care to prevent overlaps with other
@@ -43,6 +45,8 @@ public interface AttributeAccessor {
 	void setAttribute(String name, @Nullable Object value);
 
 	/**
+	 * 获取bean中指定属性的值
+	 *
 	 * Get the value of the attribute identified by {@code name}.
 	 * <p>Return {@code null} if the attribute doesn't exist.
 	 * @param name the unique attribute key
@@ -84,6 +88,8 @@ public interface AttributeAccessor {
 	}
 
 	/**
+	 * 移除bean中的属性
+	 *
 	 * Remove the attribute identified by {@code name} and return its value.
 	 * <p>Return {@code null} if no attribute under {@code name} is found.
 	 * @param name the unique attribute key
@@ -93,6 +99,8 @@ public interface AttributeAccessor {
 	Object removeAttribute(String name);
 
 	/**
+	 * 判断bean中是否存在指定的属性
+	 *
 	 * Return {@code true} if the attribute identified by {@code name} exists.
 	 * <p>Otherwise return {@code false}.
 	 * @param name the unique attribute key
@@ -100,6 +108,8 @@ public interface AttributeAccessor {
 	boolean hasAttribute(String name);
 
 	/**
+	 * 获取bean的所有属性
+	 *
 	 * Return the names of all attributes.
 	 */
 	String[] attributeNames();

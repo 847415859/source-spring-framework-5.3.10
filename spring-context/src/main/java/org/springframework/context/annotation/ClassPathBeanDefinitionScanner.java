@@ -32,6 +32,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.PatternMatchUtils;
 
 /**
+ * 个 bean 定义扫描器，用于检测类路径上的 bean 候选者，并使用给定的注册表（ BeanFactory或ApplicationContext ）注册相应的 bean 定义。
+ * 通过可配置的类型过滤器检测候选类。默认过滤器包括使用 Spring 的@Component 、 @Repository 、 @Service或@Controller构造型注释的类。
+ *
  * A bean definition scanner that detects bean candidates on the classpath,
  * registering corresponding bean definitions with a given registry ({@code BeanFactory}
  * or {@code ApplicationContext}).
