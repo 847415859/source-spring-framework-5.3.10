@@ -1,18 +1,16 @@
-package com.zhouyu.aspect;
+package com.qiankun.aspect;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class ZhouyuAspect {
+public class MyAspect {
 
-	@Pointcut("execution(public void com.zhouyu.service.UserService.test())")
+	@Pointcut("execution(public void com.qiankun.service.UserService.test())")
 	public void a(){
 
 	}

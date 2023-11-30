@@ -1,8 +1,8 @@
-package com.zhouyu.listener;
+package com.qiankun.listener;
 
 import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
  * @Auther : tiankun
  */
 @Component
-public class TKListener implements ApplicationListener {
-    @Override
+public class TKMetodListener {
+
+    @EventListener
     public void onApplicationEvent(ApplicationEvent event) {
         if(event instanceof PayloadApplicationEvent){
             PayloadApplicationEvent<?> payloadApplicationEvent = (PayloadApplicationEvent<?>) event;

@@ -1,7 +1,6 @@
-package com.zhouyu;
+package com.qiankun;
 
-import com.zhouyu.service.UserInterface;
-import com.zhouyu.service.UserService;
+import com.qiankun.service.UserService;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;

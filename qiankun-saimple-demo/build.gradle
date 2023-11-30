@@ -2,13 +2,12 @@ plugins {
     id 'java'
 }
 
-group 'org.springframework'
-version '5.3.10-SNAPSHOT'
+group 'com.qiankun'
+version '1.0'
 
 repositories {
     mavenCentral()
 }
-
 
 dependencies {
     compile(project(":spring-jdbc"))
@@ -38,7 +37,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
-//compileJava {
-//    options.compilerArgs << "-parameters"
-//}
