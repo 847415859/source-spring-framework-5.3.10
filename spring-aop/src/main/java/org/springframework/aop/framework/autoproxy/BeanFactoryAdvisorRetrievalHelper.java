@@ -66,14 +66,18 @@ public class BeanFactoryAdvisorRetrievalHelper {
 	 */
 	public List<Advisor> findAdvisorBeans() {
 		// Determine list of advisor bean names, if not cached already.
+		// 确定增强器bean名称的列表（如果尚未缓存）
 		String[] advisorNames = this.cachedAdvisorBeanNames;
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			// 不要在这里初始化FactoryBeans：
+			// 我们需要保留所有未初始化的常规bean，以使自动代理创建者对其应用
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
 			this.cachedAdvisorBeanNames = advisorNames;
 		}
+		//  如果当前IOC容器中没有任何增强器类型的bean，直接返回
 		if (advisorNames.length == 0) {
 			return new ArrayList<>();
 		}

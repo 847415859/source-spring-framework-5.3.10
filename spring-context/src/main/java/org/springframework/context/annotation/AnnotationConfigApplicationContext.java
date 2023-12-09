@@ -29,6 +29,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * 独立应用程序上下文，接受组件类作为输入 - 特别是@Configuration注释的类，但也接受普通@Component类型和使用javax.inject注释的 JSR-330 兼容类。
+ * 允许使用register(Class...)逐一注册类，以及使用scan(String...)进行类路径扫描。
+ * 如果有多个@Configuration类，后面的类中定义的@Bean方法将覆盖前面的类中定义的方法。可以利用这一点通过额外的@Configuration类故意覆盖某些 bean 定义。
+ *
  * Standalone application context, accepting <em>component classes</em> as input &mdash;
  * in particular {@link Configuration @Configuration}-annotated classes, but also plain
  * {@link org.springframework.stereotype.Component @Component} types and JSR-330 compliant

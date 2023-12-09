@@ -94,6 +94,9 @@ import org.springframework.util.Assert;
  */
 public class GenericApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
+	/**
+	 * Bean工厂对象
+	 */
 	private final DefaultListableBeanFactory beanFactory;
 
 	@Nullable
@@ -101,6 +104,9 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 
 	private boolean customClassLoader = false;
 
+	/**
+	 *  GenericApplicationContext只能刷新一次,判断是否被刷新了
+	 */
 	private final AtomicBoolean refreshed = new AtomicBoolean();
 
 

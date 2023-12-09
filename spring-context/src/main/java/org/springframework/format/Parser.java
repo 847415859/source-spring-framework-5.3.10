@@ -30,9 +30,9 @@ import java.util.Locale;
 public interface Parser<T> {
 
 	/**
-	 * Parse a text String to produce a T.
-	 * @param text the text string
-	 * @param locale the current user locale
+	 * 解析文本字符串以生成 T
+	 * @param text 文本字符串
+	 * @param locale 当前用户区域设置
 	 * @return an instance of T
 	 * @throws ParseException when a parse exception occurs in a java.text parsing library
 	 * @throws IllegalArgumentException when a parse exception occurs

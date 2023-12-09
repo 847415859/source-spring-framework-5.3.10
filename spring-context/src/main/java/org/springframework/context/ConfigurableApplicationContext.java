@@ -28,6 +28,9 @@ import org.springframework.core.metrics.ApplicationStartup;
 import org.springframework.lang.Nullable;
 
 /**
+ * SPI 接口将由大多数（如果不是全部）应用程序上下文实现。除了ApplicationContext接口中的应用程序上下文客户端方法之外，还提供配置应用程序上下文的工具。
+ * 配置和生命周期方法封装在此处，以避免使它们对 ApplicationContext 客户端代码显而易见。本方法只能由启动和关闭代码使用。
+ *
  * SPI interface to be implemented by most if not all application contexts.
  * Provides facilities to configure an application context in addition
  * to the application context client methods in the
@@ -110,6 +113,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setId(String id);
 
 	/**
+	 * 设置父容器
+	 *
 	 * Set the parent of this application context.
 	 * <p>Note that the parent shouldn't be changed: It should only be set outside
 	 * a constructor if it isn't available when an object of this class is created,
@@ -120,6 +125,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setParent(@Nullable ApplicationContext parent);
 
 	/**
+	 * 设置环境对象
+	 *
 	 * Set the {@code Environment} for this application context.
 	 * @param environment the new environment
 	 * @since 3.1
@@ -127,6 +134,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setEnvironment(ConfigurableEnvironment environment);
 
 	/**
+	 * 获取环境对象
+	 *
 	 * Return the {@code Environment} for this application context in configurable
 	 * form, allowing for further customization.
 	 * @since 3.1
@@ -135,6 +144,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	ConfigurableEnvironment getEnvironment();
 
 	/**
+	 *
 	 * Set the {@link ApplicationStartup} for this application context.
 	 * <p>This allows the application context to record metrics
 	 * during startup.
@@ -150,6 +160,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	ApplicationStartup getApplicationStartup();
 
 	/**
+	 * 添加Bean工厂的后置处理器
 	 * Add a new BeanFactoryPostProcessor that will get applied to the internal
 	 * bean factory of this application context on refresh, before any of the
 	 * bean definitions get evaluated. To be invoked during context configuration.
@@ -158,6 +169,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
 
 	/**
+	 * 添加一个事件监听器
+	 *
 	 * Add a new ApplicationListener that will be notified on context events
 	 * such as context refresh and context shutdown.
 	 * <p>Note that any ApplicationListener registered here will be applied
@@ -170,6 +183,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void addApplicationListener(ApplicationListener<?> listener);
 
 	/**
+	 * 指定用于加载类路径资源和 bean 类的 ClassLoader。
+	 * 这个上下文类加载器将被传递到内部 bean 工厂
+	 *
 	 * Specify the ClassLoader to load class path resources and bean classes with.
 	 * <p>This context class loader will be passed to the internal bean factory.
 	 * @since 5.2.7
@@ -179,6 +195,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setClassLoader(ClassLoader classLoader);
 
 	/**
+	 * 添加一个协议解析器
+	 *
 	 * Register the given protocol resolver with this application context,
 	 * allowing for additional resource protocols to be handled.
 	 * <p>Any such resolver will be invoked ahead of this context's standard
@@ -201,6 +219,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void refresh() throws BeansException, IllegalStateException;
 
 	/**
+	 * 注册一个关闭钩子函数
+	 *
 	 * Register a shutdown hook with the JVM runtime, closing this context
 	 * on JVM shutdown unless it has already been closed at that time.
 	 * <p>This method can be called multiple times. Only one shutdown hook

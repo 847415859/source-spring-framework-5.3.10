@@ -331,23 +331,19 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 
 
 	/**
-	 * If the current value of the given beanDefinition's "destroyMethodName" property is
-	 * {@link AbstractBeanDefinition#INFER_METHOD}, then attempt to infer a destroy method.
-	 * Candidate methods are currently limited to public, no-arg methods named "close" or
-	 * "shutdown" (whether declared locally or inherited). The given BeanDefinition's
-	 * "destroyMethodName" is updated to be null if no such method is found, otherwise set
-	 * to the name of the inferred method. This constant serves as the default for the
-	 * {@code @Bean#destroyMethod} attribute and the value of the constant may also be
-	 * used in XML within the {@code <bean destroy-method="">} or {@code
-	 * <beans default-destroy-method="">} attributes.
-	 * <p>Also processes the {@link java.io.Closeable} and {@link java.lang.AutoCloseable}
-	 * interfaces, reflectively calling the "close" method on implementing beans as well.
+	 * 如果给定 beanDefinition 的“destroyMethodName”属性的当前值为AbstractBeanDefinition.INFER_METHOD ，
+	 * 则尝试推断销毁方法。候选方法目前仅限于名为“close”或“shutdown”的公共、无参数方法（无论是本地声明还是继承）。
+	 * 如果未找到此类方法，则给定 BeanDefinition 的“destroyMethodName”将更新为 null，否则设置为推断方法的名称。
+	 * 该常量用作@Bean#destroyMethod属性的默认值，并且该常量的值也可以在 XML 中使用  或者  属性。
+	 * 还处理java.io.Closeable和AutoCloseable接口，并在实现 bean 时反射性地调用“close”方法
 	 */
 	@Nullable
 	private static String inferDestroyMethodIfNecessary(Object bean, RootBeanDefinition beanDefinition) {
+		// 获取到BeanDefinition中的 已经解析的销毁方法
 		String destroyMethodName = beanDefinition.resolvedDestroyMethodName;
 		if (destroyMethodName == null) {
-			destroyMethodName = beanDefinition.getDestroyMethodName(); //
+			destroyMethodName = beanDefinition.getDestroyMethodName();
+			// 销毁方法是（inferred） 或者 destroyMethodName 不为空且实现 AutoCloseable
 			if (AbstractBeanDefinition.INFER_METHOD.equals(destroyMethodName) ||
 					(destroyMethodName == null && bean instanceof AutoCloseable)) {
 				// Only perform destroy method inference or Closeable detection
@@ -355,10 +351,12 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 				destroyMethodName = null;
 				if (!(bean instanceof DisposableBean)) {
 					try {
+						// 获取 clone 方法
 						destroyMethodName = bean.getClass().getMethod(CLOSE_METHOD_NAME).getName();
 					}
 					catch (NoSuchMethodException ex) {
 						try {
+							// 获取 shutdown 方法
 							destroyMethodName = bean.getClass().getMethod(SHUTDOWN_METHOD_NAME).getName();
 						}
 						catch (NoSuchMethodException ex2) {
@@ -367,6 +365,7 @@ class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
 					}
 				}
 			}
+			// 缓存
 			beanDefinition.resolvedDestroyMethodName = (destroyMethodName != null ? destroyMethodName : "");
 		}
 		return (StringUtils.hasLength(destroyMethodName) ? destroyMethodName : null);

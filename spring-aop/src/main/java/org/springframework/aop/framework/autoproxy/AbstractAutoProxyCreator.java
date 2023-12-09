@@ -240,11 +240,13 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
-
+		// 决定是否要提前增强当前bean
 		if (!StringUtils.hasLength(beanName) || !this.targetSourcedBeans.contains(beanName)) {
+			// 被增强过的bean不会再次被增强
 			if (this.advisedBeans.containsKey(cacheKey)) {
 				return null;
 			}
+			// 基础类型的bean不会被提前增强、被跳过的bean不会被提前增强
 			if (isInfrastructureClass(beanClass) || shouldSkip(beanClass, beanName)) {
 				this.advisedBeans.put(cacheKey, Boolean.FALSE);
 				return null;
@@ -255,6 +257,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// Suppresses unnecessary default instantiation of the target bean:
 		// The TargetSource will handle target instances in a custom fashion.
 		// 这里是BeanNameAutoProxyCreator的判断逻辑
+		// 原型bean的额外处理：TargetSource
+		// 此处的设计与自定义TargetSource相关，单实例bean必定返回null
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
 		if (targetSource != null) {
 			if (StringUtils.hasLength(beanName)) {
@@ -363,6 +367,9 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
+	 * 返回给定的 bean 类是否代表永远不应该被代理的基础结构类。
+	 * 默认实现将 Advices、Advisors 和 AopInfrastructureBeans 视为基础设施类。
+	 *
 	 * Return whether the given bean class represents an infrastructure class
 	 * that should never be proxied.
 	 * <p>The default implementation considers Advices, Advisors and
@@ -398,6 +405,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory#ORIGINAL_INSTANCE_SUFFIX
 	 */
 	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
+		// 检查beanName代表的是不是原始对象(以.ORIGINAL结尾)
 		return AutoProxyUtils.isOriginalInstance(beanName, beanClass);
 	}
 
@@ -446,14 +454,14 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 */
 	protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
 			@Nullable Object[] specificInterceptors, TargetSource targetSource) {
-
+		// 记录被代理bean的原始类型
 		if (this.beanFactory instanceof ConfigurableListableBeanFactory) {
 			AutoProxyUtils.exposeTargetClass((ConfigurableListableBeanFactory) this.beanFactory, beanName, beanClass);
 		}
-
+		// 代理工厂的初始化
 		ProxyFactory proxyFactory = new ProxyFactory();
 		proxyFactory.copyFrom(this);
-
+		// 根据AOP的设计，决定是否强制使用Cglib
 		if (proxyFactory.isProxyTargetClass()) {
 			// Explicit handling of JDK proxy targets (for introduction advice scenarios)
 			if (Proxy.isProxyClass(beanClass)) {
@@ -472,7 +480,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
-
+		// 1.2.1 构造整合所有增强器
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
 		// 在这一步会去判断advisors中是否存在IntroductionAdvisor，如果存在则会把对应的interface添加到proxyFactory中去
 		proxyFactory.addAdvisors(advisors);
@@ -483,12 +491,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (advisorsPreFiltered()) {
 			proxyFactory.setPreFiltered(true);
 		}
-
 		// Use original ClassLoader if bean class not locally loaded in overriding class loader
 		ClassLoader classLoader = getProxyClassLoader();
 		if (classLoader instanceof SmartClassLoader && classLoader != beanClass.getClassLoader()) {
 			classLoader = ((SmartClassLoader) classLoader).getOriginalClassLoader();
 		}
+		// 1.2.2 创建代理对象
 		return proxyFactory.getProxy(classLoader);
 	}
 
@@ -529,11 +537,11 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return the list of Advisors for the given bean
 	 */
 	protected Advisor[] buildAdvisors(@Nullable String beanName, @Nullable Object[] specificInterceptors) {
-		// Handle prototypes correctly...
+		//  这个地方是适配Spring原生AOP的MethodInterceptor，感兴趣的小伙伴可自行研究
 		Advisor[] commonInterceptors = resolveInterceptorNames();
-
 		List<Object> allInterceptors = new ArrayList<>();
 		if (specificInterceptors != null) {
+			// 组合原生的方法拦截器，共同作为AOP的通知织入
 			if (specificInterceptors.length > 0) {
 				// specificInterceptors may equal PROXY_WITHOUT_ADDITIONAL_INTERCEPTORS
 				allInterceptors.addAll(Arrays.asList(specificInterceptors));
@@ -557,6 +565,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// 适配统一得到Advisor
 		Advisor[] advisors = new Advisor[allInterceptors.size()];
 		for (int i = 0; i < allInterceptors.size(); i++) {
+			// 此处有一个原生AOP的适配动作
 			advisors[i] = this.advisorAdapterRegistry.wrap(allInterceptors.get(i));
 		}
 		return advisors;
@@ -593,6 +602,8 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 
 	/**
+	 * 回给定的 bean 是否要被代理、需要应用哪些附加建议（例如 AOP 拦截器）和 Advisor。
+	 *
 	 * Return whether the given bean is to be proxied, what additional
 	 * advices (e.g. AOP Alliance interceptors) and advisors to apply.
 	 * @param beanClass the class of the bean to advise

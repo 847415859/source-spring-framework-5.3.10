@@ -15,27 +15,27 @@ import javax.sql.DataSource;
 @EnableTransactionManagement(proxyTargetClass = true)
 public class AppConfig {
 
-	@Bean
-	public JdbcTemplate jdbcTemplate() {
-		return new JdbcTemplate(dataSource());
-	}
-
-	@Bean
-	public PlatformTransactionManager transactionManager() {
-		DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
-		transactionManager.setDataSource(dataSource());
-		transactionManager.setGlobalRollbackOnParticipationFailure(false);
-		return transactionManager;
-	}
-
-	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai");
-		dataSource.setUsername("root");
-		dataSource.setPassword("132714");
-		return dataSource;
-	}
+	// @Bean
+	// public JdbcTemplate jdbcTemplate() {
+	// 	return new JdbcTemplate(dataSource());
+	// }
+	//
+	// @Bean
+	// public PlatformTransactionManager transactionManager() {
+	// 	DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+	// 	transactionManager.setDataSource(dataSource());
+	// 	transactionManager.setGlobalRollbackOnParticipationFailure(false);
+	// 	return transactionManager;
+	// }
+	//
+	// @Bean
+	// public DataSource dataSource() {
+	// 	DriverManagerDataSource dataSource = new DriverManagerDataSource();
+	// 	dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai");
+	// 	dataSource.setUsername("root");
+	// 	dataSource.setPassword("132714");
+	// 	return dataSource;
+	// }
 
 
 	//

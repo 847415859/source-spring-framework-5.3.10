@@ -44,8 +44,12 @@ final class SimpleMetadataReader implements MetadataReader {
 	private final AnnotationMetadata annotationMetadata;
 
 
+	/**
+	 * 唯一构造函数：给上面三个私有属性赋值，下面就只需提供get方法即可
+	 */
 	SimpleMetadataReader(Resource resource, @Nullable ClassLoader classLoader) throws IOException {
 		SimpleAnnotationMetadataReadingVisitor visitor = new SimpleAnnotationMetadataReadingVisitor(classLoader);
+		// SimpleAnnotationMetadataReadingVisitor，读取从而获取到各种信息
 		getClassReader(resource).accept(visitor, PARSING_OPTIONS);
 		this.resource = resource;
 		this.annotationMetadata = visitor.getMetadata();

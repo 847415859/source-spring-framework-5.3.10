@@ -19,10 +19,10 @@ public class TulingSpringBootApplication {
         // 设置Tomcat的端口号
         tomcat.setPort(8080);
 
-        tomcat.addWebapp("/tuling","D:\\server");
+        // tomcat.addWebapp("/tuling","D:\\server");
 
         // 创建Servlet
-        tomcat.addServlet("/tuling", "tulingServlet", new TulingServlet());
+        // tomcat.addServlet("/tuling", "tulingServlet", new TulingServlet());
         // Servlet映射
         //standardContext.addServletMappingDecoded("/hello", "tulingServlet");
         //启动tomcat容器

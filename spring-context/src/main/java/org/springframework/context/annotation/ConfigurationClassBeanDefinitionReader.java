@@ -136,7 +136,7 @@ class ConfigurationClassBeanDefinitionReader {
 	 */
 	private void loadBeanDefinitionsForConfigurationClass(
 			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
-
+		// 与条件装配有关
 		if (trackedConditionEvaluator.shouldSkip(configClass)) {
 			String beanName = configClass.getBeanName();
 			if (StringUtils.hasLength(beanName) && this.registry.containsBeanDefinition(beanName)) {
@@ -145,7 +145,7 @@ class ConfigurationClassBeanDefinitionReader {
 			this.importRegistry.removeImportingClass(configClass.getMetadata().getClassName());
 			return;
 		}
-
+		// 如果当前配置类是被@Import的，要把自己注册进BeanFactory
 		if (configClass.isImported()) {
 			// 将被导入的类生成BeanDefinition并注册到Spring容器中
 			// @Component的内部类，@Import所导入的类都是被导入的类
@@ -169,16 +169,18 @@ class ConfigurationClassBeanDefinitionReader {
 	 */
 	private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
 		AnnotationMetadata metadata = configClass.getMetadata();
+		// 构造BeanDefinition
 		AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
 
 		ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
 		configBeanDef.setScope(scopeMetadata.getScopeName());
 		String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
-
+		// 包装BeanDefinitionHolder
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
 		// 如果@Scope中设置了proxymodel=class，那么definitionHolder将为ScopedProxyFactoryBean类型
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// 注册进BeanDefinitionRegistry
 		this.registry.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
 		configClass.setBeanName(configBeanName);
 
@@ -196,7 +198,7 @@ class ConfigurationClassBeanDefinitionReader {
 		ConfigurationClass configClass = beanMethod.getConfigurationClass();
 		MethodMetadata metadata = beanMethod.getMetadata();
 		String methodName = metadata.getMethodName();
-
+		// 如果条件装配将其跳过，则该@Bean标注的方法，对应的BeanDefinition不会注册进BeanDefinitionRegistry
 		// Do we need to mark the bean as skipped by its condition?
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
 			configClass.skippedBeanMethods.add(methodName);
@@ -206,10 +208,11 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		//  检查方法上真的有@Bean注解吗
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		Assert.state(bean != null, "No @Bean annotation attributes");
 
-		// Consider name and any aliases
+		// 如果bean指定了多个name，则第1个为唯一标识，其余的都是alias别名
 		List<String> names = new ArrayList<>(Arrays.asList(bean.getStringArray("name")));
 		String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
@@ -219,6 +222,7 @@ class ConfigurationClassBeanDefinitionReader {
 		}
 
 		// Has this effectively been overridden before (e.g. via XML)?
+		// 注解中配置了@Bean，与xml中的bean撞车了，会抛出异常
 		// 如果出现了两个@Bean修改的方法名字一样（比如方法重载了），则直接return，并且会把已经存在的BeanDefinition的isFactoryMethodUnique为false
 		if (isOverriddenByExistingDefinition(beanMethod, beanName)) {
 
@@ -231,9 +235,11 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// 构造BeanDefinition
 		ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
+		// 【复杂】解析@Bean所在方法的修饰符
 		if (metadata.isStatic()) {
 			// static @Bean method
 			if (configClass.getMetadata() instanceof StandardAnnotationMetadata) {
@@ -249,7 +255,7 @@ class ConfigurationClassBeanDefinitionReader {
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
-
+		// 处理@Bean的属性(name、initMethod等)、额外的注解(@Lazy、@DependsOn等)
 		if (metadata instanceof StandardMethodMetadata) {
 			beanDef.setResolvedFactoryMethod(((StandardMethodMetadata) metadata).getIntrospectedMethod());
 		}
@@ -303,6 +309,7 @@ class ConfigurationClassBeanDefinitionReader {
 			logger.trace(String.format("Registering bean definition for @Bean method %s.%s()",
 					configClass.getMetadata().getClassName(), beanName));
 		}
+		// 注册进BeanDefinitionRegistry
 		this.registry.registerBeanDefinition(beanName, beanDefToRegister);
 	}
 

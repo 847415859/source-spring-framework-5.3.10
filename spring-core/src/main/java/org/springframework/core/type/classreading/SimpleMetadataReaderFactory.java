@@ -26,6 +26,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
+ * MetadataReaderFactory接口的简单实现，为每个请求创建一个新的 ASM org.springframework.asm.ClassReader
  * Simple implementation of the {@link MetadataReaderFactory} interface,
  * creating a new ASM {@link org.springframework.asm.ClassReader} for every request.
  *
@@ -33,7 +34,8 @@ import org.springframework.util.ClassUtils;
  * @since 2.5
  */
 public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
-
+	// ResourceLoader这个资源加载类应该不陌生了吧
+	// 默认使用的是DefaultResourceLoader，当然你可以通过构造器指定
 	private final ResourceLoader resourceLoader;
 
 
@@ -72,9 +74,11 @@ public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
 	}
 
 
+	// 根据类名找到一个Resource
 	@Override
 	public MetadataReader getMetadataReader(String className) throws IOException {
 		try {
+			// 把..形式换成//.class形式。使用前缀是：classpath:  在类路径里找
 			String resourcePath = ResourceLoader.CLASSPATH_URL_PREFIX +
 					ClassUtils.convertClassNameToResourcePath(className) + ClassUtils.CLASS_FILE_SUFFIX;
 			Resource resource = this.resourceLoader.getResource(resourcePath);
@@ -83,6 +87,7 @@ public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
 		catch (FileNotFoundException ex) {
 			// Maybe an inner class name using the dot name syntax? Need to use the dollar syntax here...
 			// ClassUtils.forName has an equivalent check for resolution into Class references later on.
+			// 此处是兼容内部类形式
 			int lastDotIndex = className.lastIndexOf('.');
 			if (lastDotIndex != -1) {
 				String innerClassName =
@@ -98,6 +103,7 @@ public class SimpleMetadataReaderFactory implements MetadataReaderFactory {
 		}
 	}
 
+	// 默认使用的是SimpleMetadataReader
 	@Override
 	public MetadataReader getMetadataReader(Resource resource) throws IOException {
 		return new SimpleMetadataReader(resource, this.resourceLoader.getClassLoader());

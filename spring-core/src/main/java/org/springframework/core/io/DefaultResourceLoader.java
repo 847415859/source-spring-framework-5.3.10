@@ -131,7 +131,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 	/**
-	 * Clear all resource caches in this resource loader.
+	 * 清除该资源加载器中的所有资源缓存。
 	 * @since 5.0
 	 * @see #getResourceCache
 	 */
@@ -143,17 +143,18 @@ public class DefaultResourceLoader implements ResourceLoader {
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
-
+		// 获取协议解析器，如果解析出来了,就返回，默认为空，需要开发者自行实现
 		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
 				return resource;
 			}
 		}
-
+		// 以/开头的相对路径
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		// 加载类路径下的资源
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}

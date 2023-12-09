@@ -225,6 +225,7 @@ public class InjectionMetadata {
 				throws Throwable {
 
 			if (this.isField) {
+				// 反射注入字段
 				Field field = (Field) this.member;
 				ReflectionUtils.makeAccessible(field);
 				field.set(target, getResourceToInject(target, requestingBeanName));
@@ -234,6 +235,7 @@ public class InjectionMetadata {
 					return;
 				}
 				try {
+					// 反射调用setter方法
 					Method method = (Method) this.member;
 					ReflectionUtils.makeAccessible(method);
 					method.invoke(target, getResourceToInject(target, requestingBeanName));

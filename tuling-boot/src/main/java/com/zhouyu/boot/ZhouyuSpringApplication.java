@@ -30,7 +30,7 @@ public class  ZhouyuSpringApplication {
 		Service service = server.findService("Tomcat");
 
 		Connector connector = new Connector();
-		connector.setPort(8081);
+		connector.setPort(8082);
 
 		Engine engine = new StandardEngine();
 		engine.setDefaultHost("localhost");

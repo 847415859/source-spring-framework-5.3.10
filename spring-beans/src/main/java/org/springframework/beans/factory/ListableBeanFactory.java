@@ -58,6 +58,9 @@ import org.springframework.lang.Nullable;
 public interface ListableBeanFactory extends BeanFactory {
 
 	/**
+	 * 检查此 bean 工厂是否包含具有给定名称的 bean 定义。
+	 * 不考虑此工厂可能参与的任何层次结构，并忽略通过 bean 定义以外的其他方式注册的任何单例
+	 *
 	 * Check if this bean factory contains a bean definition with the given name.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -69,6 +72,9 @@ public interface ListableBeanFactory extends BeanFactory {
 	boolean containsBeanDefinition(String beanName);
 
 	/**
+	 * 返回工厂中定义的 bean 数量。
+	 * 不考虑此工厂可能参与的任何层次结构，并忽略通过 bean 定义以外的其他方式注册的任何单例 bean
+	 *
 	 * Return the number of beans defined in the factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -78,6 +84,9 @@ public interface ListableBeanFactory extends BeanFactory {
 	int getBeanDefinitionCount();
 
 	/**
+	 * 返回此工厂中定义的所有 bean 的名称。
+	 * 不考虑此工厂可能参与的任何层次结构，并忽略通过 bean 定义以外的其他方式注册的任何单例
+	 *
 	 * Return the names of all beans defined in this factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -88,10 +97,14 @@ public interface ListableBeanFactory extends BeanFactory {
 	String[] getBeanDefinitionNames();
 
 	/**
+	 * 返回指定 bean 的提供者，允许延迟按需检索实例，包括可用性和唯一性选项。
+	 *
 	 * Return a provider for the specified bean, allowing for lazy on-demand retrieval
 	 * of instances, including availability and uniqueness options.
 	 * @param requiredType type the bean must match; can be an interface or superclass
+	 *                     bean 必须匹配的类型；可以是接口或超类
 	 * @param allowEagerInit whether stream-based access may initialize <i>lazy-init
+	 *
 	 * singletons</i> and <i>objects created by FactoryBeans</i> (or by factory methods
 	 * with a "factory-bean" reference) for the type check
 	 * @return a corresponding provider handle

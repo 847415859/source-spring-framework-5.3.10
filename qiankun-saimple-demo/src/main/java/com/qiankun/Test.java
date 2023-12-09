@@ -36,10 +36,16 @@ public class Test {
 
 		// 创建一个Spring容器
 		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+		applicationContext.getBean("userFactoryBean");
+
 		// OrderService orderService1 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService2 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService3 = applicationContext.getBean("orderService", OrderService.class);
 		// UserService userService = applicationContext.getBean("userService", UserService.class);
+		// System.out.println(userService.getOrderService());
+		// System.out.println(userService.getOrderService());
+		// System.out.println(userService.getOrderService());
+
 		// OrderService orderService1 = userService.getOrderService();
 		// OrderService orderService2 = userService.getOrderService();
 		// OrderService orderService3 = userService.getOrderService();
@@ -48,14 +54,15 @@ public class Test {
 		// System.out.println("orderService3 = " + orderService3);
 		// applicationContext.close();
 
-		AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader = new AnnotatedBeanDefinitionReader(applicationContext);
-		annotatedBeanDefinitionReader.registerBean(UserService.class);
+		// AnnotatedBeanDefinitionReader annotatedBeanDefinitionReader = new AnnotatedBeanDefinitionReader(applicationContext);
+		// annotatedBeanDefinitionReader.registerBean(UserService.class);
 
 		/*
 			测试事务
 		 */
-		UserService userService = applicationContext.getBean(UserService.class);
-		userService.a();
+		// UserService userService = applicationContext.getBean(UserService.class);
+		// userService.a();
+		// applicationContext.getResource("aaa");
 
 
 
@@ -113,6 +120,7 @@ public class Test {
 //		});
 //		UserService userService2  = (UserService) proxyFactory.getProxy();
 //		userService2.test();
+// 		applicationContext.stop();
 
 	}
 

@@ -161,12 +161,12 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 
 		// We start with an index of -1 and increment early.
 		// currentInterceptorIndex初始值为-1，每调用一个interceptor就会加1
-		// 当调用完了最后一个interceptor后就会执行被代理方法
+		// 当调用完了最后一个interceptor后就会执行被代理方法【增强器全部执行完毕后，会执行目标方法】
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
 			return invokeJoinpoint();
 		}
 
-		// currentInterceptorIndex初始值为-1
+		// currentInterceptorIndex初始值为-1【依次取出增强器封装的拦截器，并执行】
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 

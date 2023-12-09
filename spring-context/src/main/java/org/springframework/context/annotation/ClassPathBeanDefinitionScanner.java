@@ -161,6 +161,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		this.registry = registry;
 
 		if (useDefaultFilters) {
+			// 注册默认的过滤器
 			registerDefaultFilters();
 		}
 		setEnvironment(environment);
@@ -247,15 +248,16 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @return number of beans registered
 	 */
 	public int scan(String... basePackages) {
+		// 开始扫描之前 BeanFactory BeanDefinition的数量
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
-
+		// 真正干事儿的
 		doScan(basePackages);
 
-		// Register annotation config processors, if necessary.
+		// 在给定的注册表中注册所有相关的注释后处理器。
 		if (this.includeAnnotationConfig) {
 			AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 		}
-
+		// 返回本次扫描的BeanDefinition数量
 		return (this.registry.getBeanDefinitionCount() - beanCountAtScanStart);
 	}
 
@@ -271,15 +273,16 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
-
+			// 【真正的包扫描动作在这里】,这里主要拿到的是 beanName,及其bean所在的资源在哪
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 
 			for (BeanDefinition candidate : candidates) {
+				// 处理scope（默认情况下是singleton）
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
-
+				// 生成bean的名称
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
-
+				// 里面会设置一一些默认值
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
@@ -291,10 +294,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 				// 检查Spring容器中是否已经存在该beanName
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
-					definitionHolder =
-							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+					// 设置AOP相关的属性（如果支持的话）
+					definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
-
 					// 注册
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
@@ -303,7 +305,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		return beanDefinitions;
 	}
 
-	/**
+	/**除了通过扫描组件类检索到的内容之外，将进一步的设置应用于给定的 bean 定义
 	 * Apply further settings to the given bean definition,
 	 * beyond the contents retrieved from scanning the component class.
 	 * @param beanDefinition the scanned bean definition
@@ -320,11 +322,11 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	}
 
 	/**
-	 * Register the specified bean with the given registry.
-	 * <p>Can be overridden in subclasses, e.g. to adapt the registration
-	 * process or to register further bean definitions for each scanned bean.
-	 * @param definitionHolder the bean definition plus bean name for the bean
-	 * @param registry the BeanDefinitionRegistry to register the bean with
+	 * 使用给定的注册表注册指定的 bean。
+	 * 可以在子类中被覆盖，例如适应注册过程或为每个扫描的 bean 注册更多 bean 定义。
+	 * 参数：
+	 * @param definitionHolder  bean 定义加上 bean 的 bean 名
+	 * @param registry 	注册表
 	 */
 	protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);
@@ -332,8 +334,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
 
 	/**
-	 * Check the given candidate's bean name, determining whether the corresponding
-	 * bean definition needs to be registered or conflicts with an existing definition.
+	 * 检查给定候选的 bean 名称，确定相应的 bean 定义是否需要注册或与现有定义冲突。
+	 *
 	 * @param beanName the suggested name for the bean
 	 * @param beanDefinition the corresponding bean definition
 	 * @return {@code true} if the bean can be registered as-is;
@@ -351,7 +353,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		if (originatingDef != null) {
 			existingDef = originatingDef;
 		}
-		// 是否兼容，如果兼容返回false表示不会重新注册到Spring容器中，如果不冲突则会抛异常。
+		// 是否兼容，如果兼容返回false表示不会重新注册到Spring容器中，如果不冲突则会抛异常（如果一个Bean被扫描两次的情况下）
 		if (isCompatible(beanDefinition, existingDef)) {
 			return false;
 		}

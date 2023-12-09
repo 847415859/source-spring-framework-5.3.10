@@ -21,13 +21,17 @@ public class UserService implements ApplicationContextAware {
     private UserService userService;
 
 
-    // @Autowired
-    // private OrderService orderService;
+    @Autowired
+    private OrderService orderService;
 
-    @Lookup
+    @Lookup(value = "orderService")
     public OrderService getOrderService() {
         // return applicationContext.getBean("orderService",OrderService.class);
-        return null;
+        return orderService;
+    }
+
+    public void test(){
+        System.out.println(orderService);
     }
 
     @Override

@@ -17,6 +17,9 @@
 package org.springframework.core;
 
 /**
+ * 用于检测 GraalVM 本机映像环境的通用委托。
+ * 需要使用-H:+InlineBeforeAnalysis本机映像编译器标志，以便允许在构建时删除代码
+ *
  * A common delegate for detecting a GraalVM native image environment.
  *
  * <p>Requires using the {@code -H:+InlineBeforeAnalysis} native image compiler flag in order to allow code removal at

@@ -41,6 +41,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * BeanFactories 中使用的默认对象实例化策略。
+ * 如果容器需要重写方法来实现方法注入，则使用 CGLIB 动态生成子类。
+ *
  * Default object instantiation strategy for use in BeanFactories.
  *
  * <p>Uses CGLIB to generate subclasses dynamically if methods need to be
@@ -139,8 +142,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		}
 
 		/**
-		 * Create an enhanced subclass of the bean class for the provided bean
-		 * definition, using CGLIB.
+		 * 使用 CGLIB 为提供的 bean 定义创建 bean 类的增强子类
 		 */
 		private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
 			Enhancer enhancer = new Enhancer();
@@ -240,14 +242,15 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			LookupOverride lo = (LookupOverride) getBeanDefinition().getMethodOverrides().getOverride(method);
 			Assert.state(lo != null, "LookupOverride not found");
 			Object[] argsToUse = (args.length > 0 ? args : null);  // if no-arg, don't insist on args at all
+			// 如果 @Lookup 的 value 指定了 bean,则根据value作为beanName查询
 			if (StringUtils.hasText(lo.getBeanName())) {
 				Object bean = (argsToUse != null ? this.owner.getBean(lo.getBeanName(), argsToUse) :
 						this.owner.getBean(lo.getBeanName()));
-				// Detect package-protected NullBean instance through equals(null) check
+				// 通过equals(null)检查检查包保护的NullBean实例
 				return (bean.equals(null) ? null : bean);
 			}
 			else {
-				// Find target bean matching the (potentially generic) method return type
+				// 查找与(可能是泛型的)方法返回类型匹配的目标bean
 				ResolvableType genericReturnType = ResolvableType.forMethodReturnType(method);
 				return (argsToUse != null ? this.owner.getBeanProvider(genericReturnType).getObject(argsToUse) :
 						this.owner.getBeanProvider(genericReturnType).getObject());

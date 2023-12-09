@@ -102,10 +102,12 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						// 我们必须小心，不要急于实例化bean，因为在这种情况下，IOC容器会缓存它们，但不会被织入增强器
 						Class<?> beanType = this.beanFactory.getType(beanName, false);
 						if (beanType == null) {
 							continue;
 						}
+						// 当前解析bean的所属类型是一个切面类
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
 							// 切面的注解信息

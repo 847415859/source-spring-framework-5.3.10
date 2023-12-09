@@ -31,17 +31,20 @@ public interface MetadataReader {
 
 	/**
 	 * Return the resource reference for the class file.
+	 * 回此Class文件的来源（资源）
 	 */
 	Resource getResource();
 
 	/**
 	 * Read basic class metadata for the underlying class.
+	 * 返回此Class的元数据信息
 	 */
 	ClassMetadata getClassMetadata();
 
 	/**
 	 * Read full annotation metadata for the underlying class,
 	 * including metadata for annotated methods.
+	 *  返回此类的注解元信息（包括方法的）
 	 */
 	AnnotationMetadata getAnnotationMetadata();
 

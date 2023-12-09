@@ -469,7 +469,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		if (className == null) {
 			return null;
 		}
+		// 加载BeanClass
 		Class<?> resolvedClass = ClassUtils.forName(className, classLoader);
+		// 将原有的类的全限定名 替换为 Class
 		this.beanClass = resolvedClass;
 		return resolvedClass;
 	}
@@ -1132,7 +1134,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
 	public void prepareMethodOverrides() throws BeanDefinitionValidationException {
-		// Check that lookup methods exist and determine their overloaded status.
+		// 检查查找方法是否存在，并确定其重载状态
 		if (hasMethodOverrides()) {
 			getMethodOverrides().getOverrides().forEach(this::prepareMethodOverride);
 		}

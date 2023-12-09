@@ -33,12 +33,12 @@ import org.springframework.util.StringUtils;
  */
 public class StandardClassMetadata implements ClassMetadata {
 
+	// 用于内省的 Class类
 	private final Class<?> introspectedClass;
 
 
 	/**
-	 * Create a new StandardClassMetadata wrapper for the given Class.
-	 * @param introspectedClass the Class to introspect
+	 * 唯一构造函数：传进来的Class，作为内部的内省对象
 	 * @deprecated since 5.2 in favor of {@link StandardAnnotationMetadata}
 	 */
 	@Deprecated

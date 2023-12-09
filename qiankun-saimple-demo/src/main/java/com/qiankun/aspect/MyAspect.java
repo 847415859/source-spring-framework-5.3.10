@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyAspect {
 
-	@Pointcut("execution(public void com.qiankun.service.UserService.test())")
+	// @Pointcut("execution(public void com.qiankun.service.UserService.test())")
 	public void a(){
 
 	}
 
-	@Before("a()")
+	// @Before("a()")
 	public void zhouyuBefore(JoinPoint joinPoint) {
 		System.out.println("zhouyuBefore");
 		System.out.println("joinPoint.getTarget() = " + joinPoint.getTarget());

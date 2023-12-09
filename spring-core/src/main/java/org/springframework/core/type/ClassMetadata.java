@@ -31,29 +31,28 @@ import org.springframework.lang.Nullable;
 public interface ClassMetadata {
 
 	/**
-	 * Return the name of the underlying class.
+	 * 返回类目（注意返回的是最原始的 classname）
 	 */
 	String getClassName();
 
 	/**
-	 * Return whether the underlying class represents an interface.
+	 * 是否是接口
 	 */
 	boolean isInterface();
 
 	/**
-	 * Return whether the underlying class represents an annotation.
+	 * 是否是注解
 	 * @since 4.1
 	 */
 	boolean isAnnotation();
 
 	/**
-	 * Return whether the underlying class is marked as abstract.
+	 * 是否是抽象的
 	 */
 	boolean isAbstract();
 
 	/**
-	 * Return whether the underlying class represents a concrete class,
-	 * i.e. neither an interface nor an abstract class.
+	 * 是否允许创建，是接口且不是抽象类  这里就返回true了
 	 */
 	default boolean isConcrete() {
 		return !(isInterface() || isAbstract());
@@ -69,54 +68,44 @@ public interface ClassMetadata {
 	 * it is a top-level class or a nested class (static inner class) that
 	 * can be constructed independently from an enclosing class.
 	 *
+	 * 是否是独立的(能够创建对象的)  比如是Class、或者内部类、静态内部类，（加载内部类的前提是需要先加载外部类）
 	 * 到底是顶级类还是嵌套类(静态内部类)，可以独立于外部类构造
 	 */
 	boolean isIndependent();
 
 	/**
-	 * Return whether the underlying class is declared within an enclosing
-	 * class (i.e. the underlying class is an inner/nested class or a
-	 * local class within a method).
-	 * <p>If this method returns {@code false}, then the underlying
-	 * class is a top-level class.
+	 * 是否有内部类之类的东东
 	 */
 	default boolean hasEnclosingClass() {
 		return (getEnclosingClassName() != null);
 	}
 
 	/**
-	 * Return the name of the enclosing class of the underlying class,
-	 * or {@code null} if the underlying class is a top-level class.
+	 * 返回底层类的内部类的名称,
 	 */
 	@Nullable
 	String getEnclosingClassName();
 
 	/**
-	 * Return whether the underlying class has a super class.
+	 * 是否有父类
 	 */
 	default boolean hasSuperClass() {
 		return (getSuperClassName() != null);
 	}
 
 	/**
-	 * Return the name of the super class of the underlying class,
-	 * or {@code null} if there is no super class defined.
+	 * 获取父类
 	 */
 	@Nullable
 	String getSuperClassName();
 
 	/**
-	 * Return the names of all interfaces that the underlying class
-	 * implements, or an empty array if there are none.
+	 * 会把实现的所有接口名称都返回  具体依赖于Class#getSuperclass
 	 */
 	String[] getInterfaceNames();
 
 	/**
-	 * Return the names of all classes declared as members of the class represented by
-	 * this ClassMetadata object. This includes public, protected, default (package)
-	 * access, and private classes and interfaces declared by the class, but excludes
-	 * inherited classes and interfaces. An empty array is returned if no member classes
-	 * or interfaces exist.
+	 * 基于：Class#getDeclaredClasses  返回类中定义的公共、私有、保护的内部类
 	 * @since 3.1
 	 */
 	String[] getMemberClassNames();

@@ -79,6 +79,8 @@ public class DefaultConversionService extends GenericConversionService {
 	}
 
 	/**
+	 * 添加适合大多数环境的转换器。
+	 *
 	 * Add converters appropriate for most environments.
 	 * @param converterRegistry the registry of converters to add to
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})

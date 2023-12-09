@@ -105,12 +105,9 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	}
 
 	/**
-	 * Stop all registered beans that implement {@link Lifecycle} and <i>are</i>
-	 * currently running. Any bean that implements {@link SmartLifecycle} will be
-	 * stopped within its 'phase', and all phases will be ordered from highest to
-	 * lowest value. All beans that do not implement {@link SmartLifecycle} will be
-	 * stopped in the default phase 0. A bean declared as dependent on another bean
-	 * will be stopped before the dependency bean regardless of the declared phase.
+	 * 停止所有实现Lifecycle且当前正在运行的已注册 Bean。任何实现SmartLifecycle的 bean 都将在其“阶段”内停止，
+	 * 并且所有阶段都将从最高值到最低值排序。所有未实现SmartLifecycle bean 将在默认阶段 0 停止。
+	 * 声明为依赖于另一个 bean 的 bean 将在依赖 bean 之前停止，无论声明的阶段如何。
 	 */
 	@Override
 	public void stop() {

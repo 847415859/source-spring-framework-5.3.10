@@ -154,7 +154,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Nullable
 	private Comparator<Object> dependencyComparator;
 
-	/** Resolver to use for checking if a bean definition is an autowire candidate. */
+	/** 用于检查 bean 定义是否为自动装配候选者的解析器. */
 	private AutowireCandidateResolver autowireCandidateResolver = SimpleAutowireCandidateResolver.INSTANCE;
 
 	/** Map from dependency type to corresponding autowired value. */
@@ -178,11 +178,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** List of names of manually registered singletons, in registration order. */
 	private volatile Set<String> manualSingletonNames = new LinkedHashSet<>(16);
 
-	/** Cached array of bean definition names in case of frozen configuration. */
+	/** 缓存某个时间点所有的BeanDinitionName的名字集合 */
 	@Nullable
 	private volatile String[] frozenBeanDefinitionNames;
 
-	/** Whether bean definition metadata may be cached for all beans. */
+	/** 是否可以为所有bean缓存bean定义元数据 */
 	private volatile boolean configurationFrozen;
 
 
@@ -310,7 +310,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
-	 * Return the autowire candidate resolver for this BeanFactory (never {@code null}).
+	 * 返回该BeanFactory的自动激活候选解析器(永远不要为null)
 	 */
 	public AutowireCandidateResolver getAutowireCandidateResolver() {
 		return this.autowireCandidateResolver;
@@ -937,13 +937,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
 		// Trigger initialization of all non-lazy singleton beans...
+		// 此处循环初始化剩余的非延迟加载的单实例bean
 		for (String beanName : beanNames) {
 			// 获取合并后的BeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
-
+			// // 不是抽象的、不是延迟加载的单实例bean要初始化
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// FactoryBean默认不立即初始化，除非指定isEagerInit=true
 				if (isFactoryBean(beanName)) {
-					// 获取FactoryBean对象
+					// 获取FactoryBean对象	获取FactoryBean需要以 &开头
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
@@ -954,6 +956,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 									getAccessControlContext());
 						}
 						else {
+							// 判断是否需要提前初始化
+							// 实现 SmartFactoryBean && isEagerInit() 为true
 							isEagerInit = (factory instanceof SmartFactoryBean &&
 									((SmartFactoryBean<?>) factory).isEagerInit());
 						}
@@ -964,13 +968,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
-					// 创建Bean对象
+					// 普通的初始化，创建Bean对象
 					getBean(beanName);
 				}
 			}
 		}
 
-		// 所有的非懒加载单例Bean都创建完了后
+		// 所有的非懒加载单例Bean都创建完了后，回调实现了SmartInitializingSingleton接口
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
@@ -1013,7 +1017,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						"Validation of bean definition failed", ex);
 			}
 		}
-
+		// 判断BeanDefinition缓存中是否存在
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
 			// 默认是允许BeanDefinition覆盖的
@@ -1057,7 +1061,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
-				// Still in startup registration phase
+				// 将当前BeanDefinition记录到缓存中
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
@@ -1066,6 +1070,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		if (existingDefinition != null || containsSingleton(beanName)) {
+			// 重置给定 bean 的所有 bean 定义缓存，包括从其派生的 bean 的缓存。
+			// 在替换或删除现有 bean 定义后调用，在给定 bean 以及以给定 bean 作为父级的所有 bean 定义上触发
+			// clearMergedBeanDefinition 、 destroySingleton和MergedBeanDefinitionPostProcessor.resetBeanDefinition
 			resetBeanDefinition(beanName);
 		}
 		else if (isConfigurationFrozen()) {
@@ -1103,26 +1110,23 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
-	 * Reset all bean definition caches for the given bean,
-	 * including the caches of beans that are derived from it.
-	 * <p>Called after an existing bean definition has been replaced or removed,
-	 * triggering {@link #clearMergedBeanDefinition}, {@link #destroySingleton}
-	 * and {@link MergedBeanDefinitionPostProcessor#resetBeanDefinition} on the
-	 * given bean and on all bean definitions that have the given bean as parent.
+	 * 重置给定 bean 的所有 bean 定义缓存，包括从其派生的 bean 的缓存。
+	 * 在替换或删除现有 bean 定义后调用，在给定 bean 以及以给定 bean 作为父级的所有 bean 定义上触发
+	 * clearMergedBeanDefinition 、 destroySingleton和MergedBeanDefinitionPostProcessor.resetBeanDefinition
 	 * @param beanName the name of the bean to reset
 	 * @see #registerBeanDefinition
 	 * @see #removeBeanDefinition
 	 */
 	protected void resetBeanDefinition(String beanName) {
-		// Remove the merged bean definition for the given bean, if already created.
+		// 如果已经创建了，则删除给定bean的合并bean定义。
 		clearMergedBeanDefinition(beanName);
 
-		// Remove corresponding bean from singleton cache, if any. Shouldn't usually
-		// be necessary, rather just meant for overriding a context's default beans
+		// 从单例缓存中移出相应的bean(如果有的话)。通常不应该
+		// //是必需的，而不仅仅是为了覆盖上下文的默认bean
 		// (e.g. the default StaticMessageSource in a StaticApplicationContext).
 		destroySingleton(beanName);
 
-		// Notify all post-processors that the specified bean definition has been reset.
+		// 通知所有后处理器指定的bean定义已经重置
 		for (MergedBeanDefinitionPostProcessor processor : getBeanPostProcessorCache().mergedDefinition) {
 			processor.resetBeanDefinition(beanName);
 		}
@@ -1328,7 +1332,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			// 在属性或set方法上使用了@Lazy注解，那么则构造一个代理对象并返回，真正使用该代理对象时才进行类型筛选Bean
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
-
+			// 不是延迟加载
 			if (result == null) {
 				// descriptor表示某个属性或某个set方法
 				// requestingBeanName表示正在进行依赖注入的Bean
@@ -1349,7 +1353,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			if (shortcut != null) {
 				return shortcut;
 			}
-
+			// 获取需要注入类型
 			Class<?> type = descriptor.getDependencyType();
 			// 获取@Value所指定的值
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);

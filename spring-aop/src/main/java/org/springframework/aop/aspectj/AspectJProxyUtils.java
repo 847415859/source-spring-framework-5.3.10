@@ -56,6 +56,7 @@ public abstract class AspectJProxyUtils {
 					break;
 				}
 			}
+			// 发现有AspectJ包装的增强器，则添加一个ExposeInvocationInterceptor
 			if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
 				advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
 				return true;

@@ -725,7 +725,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	@Override
 	public final void commit(TransactionStatus status) throws TransactionException {
-		if (status.isCompleted()) {
+		if (status.isCompleted()) {	// 如果事务已经完成，则无法提交
 			throw new IllegalTransactionStateException(
 					"Transaction is already completed - do not call commit or rollback more than once per transaction");
 		}

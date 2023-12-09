@@ -63,14 +63,15 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 
 		for (Advisor advisor : advisors) {
 			if (advisor instanceof PointcutAdvisor) {
-				// Add it conditionally.
+				//  此处拿到的就是AspectJ形式的通知方法封装
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
 				// 先匹配类
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 
-					// 再匹配方法
+					// 根据通知方法上的切入点表达式，判断是否可以匹配当前要执行的目标对象所属类
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
 					boolean match;
+					// 引介匹配
 					if (mm instanceof IntroductionAwareMethodMatcher) {
 						if (hasIntroductions == null) {
 							hasIntroductions = hasMatchingIntroductions(advisors, actualClass);
@@ -78,6 +79,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 						match = ((IntroductionAwareMethodMatcher) mm).matches(method, actualClass, hasIntroductions);
 					}
 					else {
+						// 方法匹配
 						match = mm.matches(method, actualClass);
 					}
 
