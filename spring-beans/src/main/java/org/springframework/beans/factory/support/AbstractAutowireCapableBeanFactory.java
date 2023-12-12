@@ -137,6 +137,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/**
 	 * Whether to resort to injecting a raw bean instance in case of circular reference,
 	 * even if the injected bean eventually got wrapped.
+	 * 在循环引用的情况下是否诉诸注入原始 bean 实例，即使注入的 bean 最终被包装
 	 */
 	private boolean allowRawInjectionDespiteWrapping = false;
 
@@ -591,17 +592,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// 为了解决循环依赖提前缓存单例创建工厂
+		// 为了解决循环依赖提前缓存单例创建工厂(默认是支持的)
 		// Eagerly cache singletons to be able to resolve circular references
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
-				isSingletonCurrentlyInCreation(beanName));
+				isSingletonCurrentlyInCreation(beanName)); // bean是否在创建中
 		if (earlySingletonExposure) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
-			// 循环依赖-添加到三级缓存（不确定当前的Bean是否会出现循环依赖,但是先把对应的lambda表达式）
+			// 循环依赖-添加到三级缓存（不确定当前的Bean是否会出现循环依赖,但是先把对应的lambda表达式，可能会用到，可能用不到）
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -624,12 +625,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// 允许提前引用
 		if (earlySingletonExposure) {
+			// 以不允许提前引用的条件获取Bean对象（可能获取的是本身,可能获取的是代理对象（二级缓存））
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
+				// 判断实例化出来的bena和经过Bean后置处理的Bean是否是一样的（如果发送循环依赖，对象提前AOP了，则对象再次进入AOP逻辑返回的则是原对象，
+				// 而不是代理对象，此时的代理对象在二级缓存中，如果 exposedObject == bean,且Bean需要AOP处理,则 earlySingletonReference 获取
+				// 的引用则是从二级缓存中拿到的代理对象）
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
+				// 如果没有发生循环依赖，但也处理了
 				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
 					// beanName被哪些bean依赖了，现在发现beanName所对应的bean对象发生了改变，那么则会报错
 					String[] dependentBeans = getDependentBeans(beanName);
@@ -975,11 +982,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Obtain a reference for early access to the specified bean,
-	 * typically for the purpose of resolving a circular reference.
-	 * @param beanName the name of the bean (for error handling purposes)
-	 * @param mbd the merged bean definition for the bean
-	 * @param bean the raw bean instance
+	 * 获取对指定 bean 的早期访问的引用，通常是为了解决循环引用。
+	 *
+	 * @param beanName bean 的名称
+	 * @param mbd 	   bean 的合并 bean 定义
+	 * @param bean 	   bean实例
 	 * @return the object to expose as bean reference
 	 */
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
