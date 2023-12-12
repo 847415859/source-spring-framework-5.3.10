@@ -66,8 +66,14 @@ public class InjectionMetadata {
 	};
 
 
+	/**
+	 * 目标类
+	 */
 	private final Class<?> targetClass;
 
+	/**
+	 * 注入点
+	 */
 	private final Collection<InjectedElement> injectedElements;
 
 	@Nullable
@@ -247,9 +253,7 @@ public class InjectionMetadata {
 		}
 
 		/**
-		 * Check whether this injector's property needs to be skipped due to
-		 * an explicit property value having been specified. Also marks the
-		 * affected property as processed for other processors to ignore it.
+		 * 检查是否由于已指定显式属性值而需要跳过该注入器的属性。还将受影响的属性标记为已处理，以便其他处理器忽略它
 		 */
 		protected boolean checkPropertySkipping(@Nullable PropertyValues pvs) {
 			Boolean skip = this.skip;

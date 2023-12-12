@@ -141,14 +141,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	private boolean allowRawInjectionDespiteWrapping = false;
 
 	/**
-	 * Dependency types to ignore on dependency check and autowire, as Set of
-	 * Class objects: for example, String. Default is none.
+	 * 在依赖项检查和自动装配时要忽略的依赖项类型，作为类对象集：例如，String。默认为无。
 	 */
 	private final Set<Class<?>> ignoredDependencyTypes = new HashSet<>();
 
 	/**
-	 * Dependency interfaces to ignore on dependency check and autowire, as Set of
-	 * Class objects. By default, only the BeanFactory interface is ignored.
+	 * 依赖项检查和自动装配时要忽略的依赖项接口，作为类对象集。默认情况下，仅忽略 BeanFactory 接口。
 	 */
 	private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
 
@@ -265,20 +263,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Ignore the given dependency type for autowiring:
-	 * for example, String. Default is none.
+	 * 忽略给定的自动装配依赖类型: 例如String。默认为无
 	 */
 	public void ignoreDependencyType(Class<?> type) {
 		this.ignoredDependencyTypes.add(type);
 	}
 
 	/**
-	 * Ignore the given dependency interface for autowiring.
-	 * <p>This will typically be used by application contexts to register
-	 * dependencies that are resolved in other ways, like BeanFactory through
-	 * BeanFactoryAware or ApplicationContext through ApplicationContextAware.
-	 * <p>By default, only the BeanFactoryAware interface is ignored.
-	 * For further types to ignore, invoke this method for each type.
+	 * 忽略给定的自动装配依赖接口。
+	 * 应用程序上下文通常使用它来注册以其他方式解析的依赖项，例如通过 BeanFactoryAware 的 BeanFactory 或通过 ApplicationContextAware 的 ApplicationContext。
+	 * 默认情况下，仅忽略 BeanFactoryAware 接口。对于要忽略的其他类型，请为每种类型调用此方法
 	 * @see org.springframework.beans.factory.BeanFactoryAware
 	 * @see org.springframework.context.ApplicationContextAware
 	 */
@@ -1491,7 +1485,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 			checkDependencies(beanName, mbd, filteredPds, pvs);
 		}
-
 		// 如果当前Bean中的BeanDefinition中设置了PropertyValues，那么最终将是PropertyValues中的值，覆盖@Autowired
 		if (pvs != null) {
 			applyPropertyValues(beanName, mbd, bw, pvs);
@@ -1514,10 +1507,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		// 遍历每个属性名，并去获取Bean对象，并设置到pvs中
 		for (String propertyName : propertyNames) {
+			// 查看BeanFactory是否包含指定名称的bean(会逐级查询)
 			if (containsBean(propertyName)) {
+				// 从容器中获取或者创建Bean
 				Object bean = getBean(propertyName);
 				pvs.add(propertyName, bean);
-				// 记录一下propertyName对应的Bean被beanName给依赖了
+				// 记录一下propertyName对应的Bean被beanName给依赖了（避免发送循环依赖的问题）
 				registerDependentBean(propertyName, beanName);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Added autowiring by name from bean name '" + beanName +
@@ -1546,7 +1541,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected void autowireByType(
 			String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
-
+		// 获取自定义类型转化器
 		TypeConverter converter = getCustomTypeConverter();
 		if (converter == null) {
 			converter = bw;
@@ -1558,26 +1553,30 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
 		for (String propertyName : propertyNames) {
 			try {
+				// 获取属性属性描述器
 				PropertyDescriptor pd = bw.getPropertyDescriptor(propertyName);
-				// Don't try autowiring by type for type Object: never makes sense,
-				// even if it technically is a unsatisfied, non-simple property.
+				// 不按类型自动装配Object类型：永远没有意义
 				if (Object.class != pd.getPropertyType()) {
+					// 为指定属性的 write 方法获取一个新的 MethodParameter 对象
 					MethodParameter methodParam = BeanUtils.getWriteMethodParameter(pd);
-					// Do not allow eager init for type matching in case of a prioritized post-processor.
 					// eager表示立即初始化，表示在根据类型查找Bean时，允不允许进行Bean的创建，如果当前bean实现了PriorityOrdered，那么则不允许
 					// 为什么不允许，因为我自己是PriorityOrdered，是优先级最高的，不能有比我创建得更早的
+					// (PriorityOrdered接口： 这主要是一个专用接口，在框架本身内用于对象，其中首先识别优先对象尤其重要，甚至可能不需要获取剩余对象。
+					// 一个典型的例子：Springorg.springframework.context.ApplicationContext中的优先后处理器。)
 					boolean eager = !(bw.getWrappedInstance() instanceof PriorityOrdered);
+					// 构建依赖描述器
 					DependencyDescriptor desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
-					// 根据类型找到的结果
+					// 核心：解析依赖描述器获取注入的对象
 					Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames, converter);
 					if (autowiredArgument != null) {
+						// 添加到 BeanDefinition的 propertyValues中
 						pvs.add(propertyName, autowiredArgument);
 					}
 					for (String autowiredBeanName : autowiredBeanNames) {
+						// 记录一下propertyName对应的Bean被beanName给依赖了（避免发送循环依赖的问题）
 						registerDependentBean(autowiredBeanName, beanName);
 						if (logger.isTraceEnabled()) {
-							logger.trace("Autowiring by type from bean name '" + beanName + "' via property '" +
-									propertyName + "' to bean named '" + autowiredBeanName + "'");
+							logger.trace("Autowiring by type from bean name '" + beanName + "' via property '" + propertyName + "' to bean named '" + autowiredBeanName + "'");
 						}
 					}
 					autowiredBeanNames.clear();
@@ -1591,24 +1590,24 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 
 	/**
-	 * Return an array of non-simple bean properties that are unsatisfied.
-	 * These are probably unsatisfied references to other beans in the
-	 * factory. Does not include simple properties like primitives or Strings.
-	 * @param mbd the merged bean definition the bean was created with
-	 * @param bw the BeanWrapper the bean was created with
-	 * @return an array of bean property names
+	 * 返回不满足的非简单 bean 属性的数组。这些可能是对工厂中其他豆子的不满意参考。不包括简单属性，如基元或字符串。
+	 *
+	 * @param mbd 	Bean定义信息
+	 * @param bw 	Bean实例的包装类
+	 * @return 		Bean的属性集合
 	 * @see org.springframework.beans.BeanUtils#isSimpleProperty
 	 */
 	protected String[] unsatisfiedNonSimpleProperties(AbstractBeanDefinition mbd, BeanWrapper bw) {
 		Set<String> result = new TreeSet<>();
 		PropertyValues pvs = mbd.getPropertyValues();
+		// 获取当前BeanDefinition对应Class的属性描述器
 		PropertyDescriptor[] pds = bw.getPropertyDescriptors();
-
-		// 什么样的属性能进行自动注入？
+		// question: 什么样的属性能进行自动注入？
 		// 1.该属性有对应的set方法
 		// 2.没有在ignoredDependencyTypes中
 		// 3.如果该属性对应的set方法是实现的某个接口中所定义的，那么接口没有在ignoredDependencyInterfaces中
 		// 4.属性类型不是简单类型，比如int、Integer、int[]
+		// 5.pvs.contains(pd.getName()) ,如果我们之前对这个属性设置的值，也就不会在进行添加(eg。BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry)
 		for (PropertyDescriptor pd : pds) {
 			if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) &&
 					!BeanUtils.isSimpleProperty(pd.getPropertyType())) {
@@ -1656,19 +1655,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Determine whether the given bean property is excluded from dependency checks.
-	 * <p>This implementation excludes properties defined by CGLIB and
-	 * properties whose type matches an ignored dependency type or which
-	 * are defined by an ignored dependency interface.
+	 * 确定给定的 bean 属性是否从依赖性检查中排除。
+	 * 此实现排除由 CGLIB 定义的属性以及其类型与忽略的依赖项类型匹配或由忽略的依赖项接口定义的属性。
+	 *
 	 * @param pd the PropertyDescriptor of the bean property
-	 * @return whether the bean property is excluded
+	 * @return  是否排除Bean属性
 	 * @see #ignoreDependencyType(Class)
 	 * @see #ignoreDependencyInterface(Class)
 	 */
 	protected boolean isExcludedFromDependencyCheck(PropertyDescriptor pd) {
 		// 属性类型是否在ignoredDependencyTypes中
 		// 该属性的set方法是否是实现的某个接口中所定义的，该接口是否在ignoredDependencyInterfaces中
-
 		return (AutowireUtils.isExcludedFromDependencyCheck(pd) ||
 				this.ignoredDependencyTypes.contains(pd.getPropertyType()) ||
 				AutowireUtils.isSetterDefinedInInterface(pd, this.ignoredDependencyInterfaces));

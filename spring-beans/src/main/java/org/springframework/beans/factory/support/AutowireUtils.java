@@ -80,8 +80,8 @@ abstract class AutowireUtils {
 	}
 
 	/**
-	 * Determine whether the given bean property is excluded from dependency checks.
-	 * <p>This implementation excludes properties defined by CGLIB.
+	 * 确定给定的 bean 属性是否从依赖性检查中排除。
+	 * 此实现不包括 CGLIB 定义的属性。
 	 * @param pd the PropertyDescriptor of the bean property
 	 * @return whether the bean property is excluded
 	 */
@@ -90,12 +90,14 @@ abstract class AutowireUtils {
 		if (wm == null) {
 			return false;
 		}
+		// 类名称不包含 '$$'
 		if (!wm.getDeclaringClass().getName().contains("$$")) {
-			// Not a CGLIB method so it's OK.
+			// 不是 CGLIB 方法，所以不需要排除
 			return false;
 		}
 		// It was declared by CGLIB, but we might still want to autowire it
 		// if it was actually declared by the superclass.
+		// 它是由 CGLIB 声明的，但如果它实际上是由超类声明的，我们可能仍然想自动装配它
 		Class<?> superclass = wm.getDeclaringClass().getSuperclass();
 		return !ClassUtils.hasMethod(superclass, wm);
 	}

@@ -163,7 +163,8 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	}
 
 	/**
-	 * Match the given qualifier annotations against the candidate bean definition.
+	 * 将给定的限定符注释与候选 bean 定义进行匹配。
+	 * @return 如果匹配到了则返回 true,或者需要继续向下传递也返回true
 	 */
 	protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
 		if (ObjectUtils.isEmpty(annotationsToSearch)) {
@@ -174,7 +175,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			Class<? extends Annotation> type = annotation.annotationType();
 			boolean checkMeta = true;
 			boolean fallbackToMeta = false;
-			// 当前注解是否是Qualifier
+			// 当前注解是否是@Qualifier
 			if (isQualifier(type)) {
 				// 当前注解是否是Qualifier，如果和当前BeanDefinition不匹配，则fallbackToMeta为true, checkMeta依然为true
 				// 比如@Random，它自己可以有一个value属性，并且上面还有一个@Qualifier("random")
@@ -221,6 +222,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 
 	/**
 	 * Match the given qualifier annotation against the candidate bean definition.
+	 * 匹配给定的 @Qualifier注解 是否能匹配上当前的 BeanDefinition
 	 */
 	protected boolean checkQualifier(
 			BeanDefinitionHolder bdHolder, Annotation annotation, TypeConverter typeConverter) {

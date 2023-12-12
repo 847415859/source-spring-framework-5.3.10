@@ -547,12 +547,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
-	 * Internal extended variant of {@link #isTypeMatch(String, ResolvableType)}
-	 * to check whether the bean with the given name matches the specified type. Allow
-	 * additional constraints to be applied to ensure that beans are not created early.
-	 * @param name the name of the bean to query
-	 * @param typeToMatch the type to match against (as a
-	 * {@code ResolvableType})
+	 * isTypeMatch(String, ResolvableType)的内部扩展变体，用于检查给定名称的 bean 是否与指定类型匹配。允许应用附加约束以确保 Bean 不会过早创建。
+	 * @param name 			bean名称
+	 * @param typeToMatch 	需要匹配的类型
 	 * @return {@code true} if the bean type matches, {@code false} if it
 	 * doesn't match or cannot be determined yet
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
@@ -575,11 +572,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (beanInstance != null && beanInstance.getClass() != NullBean.class) {
 			if (beanInstance instanceof FactoryBean) {
 				if (!isFactoryDereference) {
-					// 调用factoryBean.getObjectType()
+					// 调用factoryBean.getObjectType() 判断类型是否是其子类
 					Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
 					return (type != null && typeToMatch.isAssignableFrom(type));
 				}
 				else {
+					// 判断对象是否是类型的实例
 					return typeToMatch.isInstance(beanInstance);
 				}
 			}
@@ -590,8 +588,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// Direct match for exposed instance?
 					return true;
 				}
+				// 如果此类型包含泛型参数 || 检查此 bean 工厂是否包含具有给定名称的 bean 定义
 				else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
 					// Generics potentially only match on the target class, not on the proxy...
+					// 泛型可能只匹配目标类，而不匹配代理……
 					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 					Class<?> targetType = mbd.getTargetType();
 					if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
@@ -621,7 +621,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// No singleton instance found -> check bean definition.
 		BeanFactory parentBeanFactory = getParentBeanFactory();
 		if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
-			// No bean definition found in this factory -> delegate to parent.
+			// 逐级向上判断类型是否匹配
 			return parentBeanFactory.isTypeMatch(originalBeanName(name), typeToMatch);
 		}
 

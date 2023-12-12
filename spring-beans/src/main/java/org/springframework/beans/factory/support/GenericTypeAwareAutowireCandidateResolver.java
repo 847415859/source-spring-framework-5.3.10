@@ -70,11 +70,11 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 	}
 
 	/**
-	 * Match the given dependency type with its generic type information against the given
-	 * candidate bean definition.
+	 * 将给定的依赖类型与其泛型类型信息匹配候选bean定义
 	 */
 	protected boolean checkGenericTypeMatch(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
 		ResolvableType dependencyType = descriptor.getResolvableType();
+		// 判断是否是泛型，如果是泛型类型则不派生于Class
 		if (dependencyType.getType() instanceof Class) {
 			// No generic type -> we know it's a Class type-match, so no need to check again.
 			return true;
@@ -90,7 +90,7 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 			targetType = rbd.targetType;
 			if (targetType == null) {
 				cacheType = true;
-				// First, check factory method return type, if applicable
+				// 首先，检查工厂方法返回类型(如果适用，如果不是工厂方法创建的Bean，则返回NULL)
 				targetType = getReturnTypeForFactoryMethod(rbd, descriptor);
 				if (targetType == null) {
 					RootBeanDefinition dbd = getResolvedDecoratedDefinition(rbd);
@@ -105,15 +105,16 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 		}
 
 		if (targetType == null) {
-			// Regular case: straight bean instance, with BeanFactory available.
+			// 常规情况：直接 bean 实例，有 BeanFactory 可用。
 			if (this.beanFactory != null) {
+				// 获取Beanname的类型
 				Class<?> beanType = this.beanFactory.getType(bdHolder.getBeanName());
 				if (beanType != null) {
+					// 如果是Cglib的代理则（类名称包含 '$$'） 返回父类型，否则返回本身
 					targetType = ResolvableType.forClass(ClassUtils.getUserClass(beanType));
 				}
 			}
-			// Fallback: no BeanFactory set, or no type resolvable through it
-			// -> best-effort match against the target class if applicable.
+			// 后备：没有设置 BeanFactory，或者没有可通过它解析的类型 -> 尽力匹配目标类（如果适用）。
 			if (targetType == null && rbd != null && rbd.hasBeanClass() && rbd.getFactoryMethodName() == null) {
 				Class<?> beanClass = rbd.getBeanClass();
 				if (!FactoryBean.class.isAssignableFrom(beanClass)) {
@@ -130,12 +131,11 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 		}
 		if (descriptor.fallbackMatchAllowed() &&
 				(targetType.hasUnresolvableGenerics() || targetType.resolve() == Properties.class)) {
-			// Fallback matches allow unresolvable generics, e.g. plain HashMap to Map<String,String>;
-			// and pragmatically also java.util.Properties to any Map (since despite formally being a
-			// Map<Object,Object>, java.util.Properties is usually perceived as a Map<String,String>).
+			// 后备匹配允许无法解析的泛型，例如普通 HashMap 到 Map<String,String>;实际上，java.util.Properties也适用于任何Map
+			// （因为尽管形式上是Map<Object,Object>，java.util.Properties通常被视为Map<String,String>）。
 			return true;
 		}
-		// Full check for complex generic type match...
+		// 全面检查复杂泛型类型匹配
 		return dependencyType.isAssignableFrom(targetType);
 	}
 
@@ -154,10 +154,10 @@ public class GenericTypeAwareAutowireCandidateResolver extends SimpleAutowireCan
 		return null;
 	}
 
+
 	@Nullable
 	protected ResolvableType getReturnTypeForFactoryMethod(RootBeanDefinition rbd, DependencyDescriptor descriptor) {
-		// Should typically be set for any kind of factory method, since the BeanFactory
-		// pre-resolves them before reaching out to the AutowireCandidateResolver...
+		// 优先解析工程厂方法，判断是否由工厂方法创建Bean
 		ResolvableType returnType = rbd.factoryMethodReturnType;
 		if (returnType == null) {
 			Method factoryMethod = rbd.getResolvedFactoryMethod();

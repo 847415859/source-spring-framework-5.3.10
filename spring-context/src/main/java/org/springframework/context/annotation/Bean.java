@@ -255,9 +255,8 @@ public @interface Bean {
 	Autowire autowire() default Autowire.NO;
 
 	/**
-	 * Is this bean a candidate for getting autowired into some other bean?
-	 * <p>Default is {@code true}; set this to {@code false} for internal delegates
-	 * that are not meant to get in the way of beans of the same type in other places.
+	 * 该 bean 是否可以自动注入到其他 bean 中？
+	 * 默认为true ；对于不妨碍其他地方相同类型的 bean 的内部委托，将其设置为false 。
 	 * @since 5.1
 	 */
 	boolean autowireCandidate() default true;

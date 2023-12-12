@@ -146,6 +146,11 @@ class ExtendedBeanInfo implements BeanInfo {
 	public static boolean isCandidateWriteMethod(Method method) {
 		String methodName = method.getName();
 		int nParams = method.getParameterCount();
+		// 符合写方法的条件为：
+		// 1.方法名是set开头且长度 > 3
+		// 2.public 方法
+		// 3.返回值不是void 或者 static方法
+		// 4.参数只有一个 或者 参数有2个但是第一个参数的int类型
 		return (methodName.length() > 3 && methodName.startsWith("set") && Modifier.isPublic(method.getModifiers()) &&
 				(!void.class.isAssignableFrom(method.getReturnType()) || Modifier.isStatic(method.getModifiers())) &&
 				(nParams == 1 || (nParams == 2 && int.class == method.getParameterTypes()[0])));

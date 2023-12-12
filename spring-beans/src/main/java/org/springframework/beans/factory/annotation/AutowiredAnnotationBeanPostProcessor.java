@@ -133,6 +133,9 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * 注入点类型 @Autowired @Value @Inject
+	 */
 	private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
 
 	private String requiredParameterName = "required";
@@ -146,8 +149,15 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
 	private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
+	/**
+	 * 推断工构造方法缓存
+	 */
 	private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
+	/**
+	 * 注入元信息缓存
+	 * key: beanname 获是 类名
+	 */
 	private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
 
@@ -243,6 +253,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		// 核心：@Autowired 寻找注入点
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, beanType, null);
 		metadata.checkConfigMembers(beanDefinition);
 	}
@@ -433,6 +444,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 		// 这个时候已经可以从缓冲中拿到注入点
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
+			// 注入点注入
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (BeanCreationException ex) {
@@ -642,7 +654,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 	}
 
 	/**
-	 * Resolve the specified cached method argument or field value.
+	 * 解析指定的缓存方法参数或字段值。
 	 */
 	@Nullable
 	private Object resolvedCachedArgument(@Nullable String beanName, @Nullable Object cachedArgument) {

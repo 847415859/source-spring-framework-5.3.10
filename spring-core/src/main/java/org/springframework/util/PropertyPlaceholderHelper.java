@@ -128,16 +128,17 @@ public class PropertyPlaceholderHelper {
 
 	protected String parseStringValue(
 			String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
-
+		// 检验是否以 ${开头 默认
 		int startIndex = value.indexOf(this.placeholderPrefix);
 		if (startIndex == -1) {
 			return value;
 		}
 
 		StringBuilder result = new StringBuilder(value);
-		while (startIndex != -1) {
+		while (startIndex != -1) { //获取结束的索引
 			int endIndex = findPlaceholderEndIndex(result, startIndex);
 			if (endIndex != -1) {
+				// 去除占位符符号  ${java} => java
 				String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
 				String originalPlaceholder = placeholder;
 				if (visitedPlaceholders == null) {
@@ -147,9 +148,9 @@ public class PropertyPlaceholderHelper {
 					throw new IllegalArgumentException(
 							"Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
 				}
-				// Recursive invocation, parsing placeholders contained in the placeholder key.
+				// 递归调用，解析占位符键中包含的占位符
 				placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
-				// Now obtain the value for the fully resolved key...
+				// 根据key获取VaLUE
 				String propVal = placeholderResolver.resolvePlaceholder(placeholder);
 				if (propVal == null && this.valueSeparator != null) {
 					int separatorIndex = placeholder.indexOf(this.valueSeparator);

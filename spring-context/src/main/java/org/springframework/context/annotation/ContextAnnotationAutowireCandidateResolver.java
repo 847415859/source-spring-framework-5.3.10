@@ -75,6 +75,12 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 		return false;
 	}
 
+	/**
+	 * 产生一个Bean的代理工厂
+	 * @param descriptor
+	 * @param beanName
+	 * @return
+	 */
 	protected Object buildLazyResolutionProxy(final DependencyDescriptor descriptor, final @Nullable String beanName) {
 		BeanFactory beanFactory = getBeanFactory();
 		Assert.state(beanFactory instanceof DefaultListableBeanFactory,
@@ -93,6 +99,7 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 			@Override
 			public Object getTarget() {
 				Set<String> autowiredBeanNames = (beanName != null ? new LinkedHashSet<>(1) : null);
+				// 当代理对象被使用的时候，在从 BeanFactory中获取对象
 				Object target = dlbf.doResolveDependency(descriptor, beanName, autowiredBeanNames, null);
 				if (target == null) {
 					Class<?> type = getTargetClass();
