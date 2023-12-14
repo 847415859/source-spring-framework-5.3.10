@@ -440,22 +440,12 @@ public @interface Configuration {
 	String value() default "";
 
 	/**
-	 * Specify whether {@code @Bean} methods should get proxied in order to enforce
-	 * bean lifecycle behavior, e.g. to return shared singleton bean instances even
-	 * in case of direct {@code @Bean} method calls in user code. This feature
-	 * requires method interception, implemented through a runtime-generated CGLIB
-	 * subclass which comes with limitations such as the configuration class and
-	 * its methods not being allowed to declare {@code final}.
-	 * <p>The default is {@code true}, allowing for 'inter-bean references' via direct
-	 * method calls within the configuration class as well as for external calls to
-	 * this configuration's {@code @Bean} methods, e.g. from another configuration class.
-	 * If this is not needed since each of this particular configuration's {@code @Bean}
-	 * methods is self-contained and designed as a plain factory method for container use,
-	 * switch this flag to {@code false} in order to avoid CGLIB subclass processing.
-	 * <p>Turning off bean method interception effectively processes {@code @Bean}
-	 * methods individually like when declared on non-{@code @Configuration} classes,
-	 * a.k.a. "@Bean Lite Mode" (see {@link Bean @Bean's javadoc}). It is therefore
-	 * behaviorally equivalent to removing the {@code @Configuration} stereotype.
+	 * 指定@Bean方法是否应该被代理，以强制执行 bean 生命周期行为，例如，即使在用户代码中直接调用@Bean方法的情况下，也返回共享的单例 bean 实例。
+	 * 此功能需要方法拦截，通过运行时生成的 CGLIB 子类实现，该子类具有限制，例如不允许配置类及其方法声明final 。
+	 * 默认值为true ，允许通过配置类内的直接方法调用进行“bean 间引用”，以及对此配置的@Bean方法的外部调用（例如从另一个配置类调用）。
+	 * 如果不需要这样做，因为每个特定配置的@Bean方法都是独立的，并且设计为供容器使用的普通工厂方法，请将此标志切换为false以避免 CGLIB 子类处理。
+	 * 关闭 bean 方法拦截可以有效地单独处理@Bean方法，就像在非@Configuration类上声明时一样，
+	 * 也称为“@Bean Lite 模式”（请参阅@Bean's javadoc ）。因此，它在行为上等同于删除@Configuration构造型。
 	 * @since 5.2
 	 */
 	boolean proxyBeanMethods() default true;

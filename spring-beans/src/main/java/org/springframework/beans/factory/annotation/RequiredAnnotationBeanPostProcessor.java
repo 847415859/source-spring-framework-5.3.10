@@ -79,8 +79,7 @@ public class RequiredAnnotationBeanPostProcessor implements SmartInstantiationAw
 		MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
 	/**
-	 * Bean definition attribute that may indicate whether a given bean is supposed
-	 * to be skipped when performing this post-processor's required property check.
+	 * Bean 定义属性可以指示在执行后处理器所需的属性检查时是否应该跳过给定的 Bean。
 	 * @see #shouldSkip
 	 */
 	public static final String SKIP_REQUIRED_CHECK_ATTRIBUTE =

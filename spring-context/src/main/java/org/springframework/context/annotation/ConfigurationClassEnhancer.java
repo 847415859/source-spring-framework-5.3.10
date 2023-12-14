@@ -95,6 +95,7 @@ class ConfigurationClassEnhancer {
 	 * @return the enhanced subclass
 	 */
 	public Class<?> enhance(Class<?> configClass, @Nullable ClassLoader classLoader) {
+		// 如果已经增强过了就直接返回
 		if (EnhancedConfiguration.class.isAssignableFrom(configClass)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug(String.format("Ignoring request to enhance %s as it has " +
@@ -130,8 +131,7 @@ class ConfigurationClassEnhancer {
 	}
 
 	/**
-	 * Uses enhancer to generate a subclass of superclass,
-	 * ensuring that callbacks are registered for the new subclass.
+	 * 使用增强器生成超类的子类，确保为新子类注册回调。
 	 */
 	private Class<?> createClass(Enhancer enhancer) {
 		Class<?> subclass = enhancer.createClass();
@@ -285,9 +285,9 @@ class ConfigurationClassEnhancer {
 					MethodProxy cglibMethodProxy) throws Throwable {
 			// enhancedConfigInstance是代理对象
 			ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);
+			// 根据方法推断出beanName
 			String beanName = BeanAnnotationHelper.determineBeanNameFor(beanMethod);
-
-			// Determine whether this bean is a scoped-proxy
+			// 确定此 bean 是否是作用域代理
 			if (BeanAnnotationHelper.isScopedProxy(beanMethod)) {
 				String scopedBeanName = ScopedProxyCreator.getTargetBeanName(beanName);
 				if (beanFactory.isCurrentlyInCreation(scopedBeanName)) {
@@ -298,10 +298,10 @@ class ConfigurationClassEnhancer {
 			// To handle the case of an inter-bean method reference, we must explicitly check the
 			// container for already cached instances.
 
-			// First, check to see if the requested bean is a FactoryBean. If so, create a subclass
-			// proxy that intercepts calls to getObject() and returns any cached bean instance.
-			// This ensures that the semantics of calling a FactoryBean from within @Bean methods
-			// is the same as that of referring to a FactoryBean within XML. See SPR-6602.
+
+			// 首先，检查请求的 bean 是否是 FactoryBean。
+			// 如果是这样，请创建一个子类代理来拦截对 getObject() 的调用并返回任何缓存的 bean 实例。
+			// 这确保了从 @Bean 方法中调用 FactoryBean 的语义与在 XML 中引用 FactoryBean 的语义相同
 			if (factoryContainsBean(beanFactory, BeanFactory.FACTORY_BEAN_PREFIX + beanName) &&
 					factoryContainsBean(beanFactory, beanName)) {
 				Object factoryBean = beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
@@ -316,9 +316,9 @@ class ConfigurationClassEnhancer {
 
 			// 如果代理对象正在执行的方法就是正在创建Bean的工厂方法，那就直接执行对应的方法得到对象作为Bean
 			if (isCurrentlyInvokedFactoryMethod(beanMethod)) {
-				// The factory is calling the bean method in order to instantiate and register the bean
-				// (i.e. via a getBean() call) -> invoke the super implementation of the method to actually
-				// create the bean instance.
+
+				// BeanFactory 调用 bean 方法来实例化和注册 bean
+				// （即通过 getBean() 调用）-> 调用该方法的超级实现来实际创建 bean 实例。
 				if (logger.isInfoEnabled() &&
 						BeanFactoryPostProcessor.class.isAssignableFrom(beanMethod.getReturnType())) {
 					logger.info(String.format("@Bean method %s.%s is non-static and returns an object " +
@@ -329,7 +329,7 @@ class ConfigurationClassEnhancer {
 									"these container lifecycle issues; see @Bean javadoc for complete details.",
 							beanMethod.getDeclaringClass().getSimpleName(), beanMethod.getName()));
 				}
-				// 注意这里传入的是代理对象，相当于在执行父类的方法，注意和Spring事务做区分
+				// 注意这里传入的是代理对象，相当于在执行父类的方法，注意和Spring事务做区分，不需要进行代理
 				return cglibMethodProxy.invokeSuper(enhancedConfigInstance, beanMethodArgs);
 			}
 
@@ -340,11 +340,11 @@ class ConfigurationClassEnhancer {
 		private Object resolveBeanReference(Method beanMethod, Object[] beanMethodArgs,
 				ConfigurableBeanFactory beanFactory, String beanName) {
 
-			// The user (i.e. not the factory) is requesting this bean through a call to
-			// the bean method, direct or indirect. The bean may have already been marked
-			// as 'in creation' in certain autowiring scenarios; if so, temporarily set
-			// the in-creation status to false in order to avoid an exception.
+			// 用户（即不是工厂）通过直接或间接调用 bean 方法来请求此 bean。
+			// 在某些自动装配场景中，bean 可能已被标记为“正在创建”；
+			// 如果是这样，请暂时将创建中状态设置为 false，以避免异常。
 			boolean alreadyInCreation = beanFactory.isCurrentlyInCreation(beanName);
+
 			try {
 				if (alreadyInCreation) {
 					beanFactory.setCurrentlyInCreation(beanName, false);
@@ -361,8 +361,8 @@ class ConfigurationClassEnhancer {
 						}
 					}
 				}
-				Object beanInstance = (useArgs ? beanFactory.getBean(beanName, beanMethodArgs) :
-						beanFactory.getBean(beanName));
+				// 从工厂获取Bean实例
+				Object beanInstance = (useArgs ? beanFactory.getBean(beanName, beanMethodArgs) : beanFactory.getBean(beanName));
 				if (!ClassUtils.isAssignableValue(beanMethod.getReturnType(), beanInstance)) {
 					// Detect package-protected NullBean instance through equals(null) check
 					if (beanInstance.equals(null)) {
@@ -389,9 +389,11 @@ class ConfigurationClassEnhancer {
 						throw new IllegalStateException(msg);
 					}
 				}
+				// 获取当前调用代理方法的Bean名称
 				Method currentlyInvoked = SimpleInstantiationStrategy.getCurrentlyInvokedFactoryMethod();
 				if (currentlyInvoked != null) {
 					String outerBeanName = BeanAnnotationHelper.determineBeanNameFor(currentlyInvoked);
+					// 注册依赖关系
 					beanFactory.registerDependentBean(beanName, outerBeanName);
 				}
 				return beanInstance;

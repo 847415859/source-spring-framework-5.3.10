@@ -161,8 +161,10 @@ class ConfigurationClassParser {
 		this.environment = environment;
 		this.resourceLoader = resourceLoader;
 		this.registry = registry;
+		// @ComponentScan注解解析扫描
 		this.componentScanParser = new ComponentScanAnnotationParser(
 				environment, resourceLoader, componentScanBeanNameGenerator, registry);
+		// @Conditional 条件注解评估
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, resourceLoader);
 	}
 
@@ -193,7 +195,6 @@ class ConfigurationClassParser {
 						"Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
 			}
 		}
-
 		// 处理deferredImportSelectors，表示当前所有配置类解析完了之后才执行
 		// deferredImportSelector表示推迟的ImportSelector，正常的ImportSelector是在解析配置类的过程中执行的
 		this.deferredImportSelectorHandler.process();
@@ -236,12 +237,14 @@ class ConfigurationClassParser {
 			return;
 		}
 
-
+		// 存放解析过的配置类
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
+			// 当前注册的是否通过 @Import 注册的
 			if (configClass.isImported()) {
 				// OrderService导入了AccountService，UserService也导入了AccountService，就会符合这个条件
 				if (existingClass.isImported()) {
+					// 将配置信息进行合并
 					existingClass.mergeImportedBy(configClass);
 				}
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
@@ -255,7 +258,7 @@ class ConfigurationClassParser {
 			}
 		}
 
-		// Recursively process the configuration class and its superclass hierarchy.
+		// 递归处理配置类及其超类层次结构
 		SourceClass sourceClass = asSourceClass(configClass, filter);
 		do {
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass, filter);
@@ -359,11 +362,11 @@ class ConfigurationClassParser {
 		// 解析配置类所实现的接口中的@Bean，但并没有真正处理@Bean，只是暂时找出来
 		processInterfaces(configClass, sourceClass);
 
-		// Process superclass, if any
+		// 解析配置类所实现的接口中的@Bean，但并没有真正处理@Bean，只是暂时找出来
 		if (sourceClass.getMetadata().hasSuperClass()) {
 			String superclass = sourceClass.getMetadata().getSuperClassName();
-			if (superclass != null && !superclass.startsWith("java") &&
-					!this.knownSuperclasses.containsKey(superclass)) {
+			// 父类不为Null,且不以java开头，并且没有被加载过
+			if (superclass != null && !superclass.startsWith("java") &&  !this.knownSuperclasses.containsKey(superclass)) {
 				this.knownSuperclasses.put(superclass, configClass);
 				// Superclass found, return its annotation metadata and recurse
 				return sourceClass.getSuperClass();
@@ -375,7 +378,7 @@ class ConfigurationClassParser {
 	}
 
 	/**
-	 * Register member (nested) classes that happen to be configuration classes themselves.
+	 * 注册恰好是配置类本身的成员（嵌套）类。
 	 */
 	private void processMemberClasses(ConfigurationClass configClass, SourceClass sourceClass,
 			Predicate<String> filter) throws IOException {
@@ -449,8 +452,7 @@ class ConfigurationClassParser {
 			// 上面这段注释的意思是，JVM反射所返回的方法顺序是任意的，直接取beanMethods做过测试，多运行几次确实是返回的方法顺序是不固定的
 			// 所以，这里 Spring 使用 ASM 读取字节码的目的，是为了保证加载配置类中 `@Bean` 方法的从上到下的顺序与源文件 .java 中一致
 			try {
-				AnnotationMetadata asm =
-						this.metadataReaderFactory.getMetadataReader(original.getClassName()).getAnnotationMetadata();
+				AnnotationMetadata asm = this.metadataReaderFactory.getMetadataReader(original.getClassName()).getAnnotationMetadata();
 				Set<MethodMetadata> asmMethods = asm.getAnnotatedMethods(Bean.class.getName());
 				if (asmMethods.size() >= beanMethods.size()) {
 					Set<MethodMetadata> selectedMethods = new LinkedHashSet<>(asmMethods.size());

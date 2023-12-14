@@ -194,6 +194,7 @@ public abstract class AbstractApplicationEventMulticaster
 		// Potential new retriever to populate
 		CachedListenerRetriever newRetriever = null;
 
+
 		// Quick check for existing entry on ConcurrentHashMap
 		CachedListenerRetriever existingRetriever = this.retrieverCache.get(cacheKey);
 		if (existingRetriever == null) {
@@ -238,6 +239,7 @@ public abstract class AbstractApplicationEventMulticaster
 		Set<ApplicationListener<?>> listeners;
 		Set<String> listenerBeans;
 		synchronized (this.defaultRetriever) {
+			//  defaultRetriever中存放了所有的监听器
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);
 		}
@@ -253,8 +255,8 @@ public abstract class AbstractApplicationEventMulticaster
 			}
 		}
 
-		// Add listeners by bean name, potentially overlapping with programmatically
-		// registered listeners above - but here potentially with additional metadata.
+		// 按 bean 名称添加侦听器，可能与上面以编程方式注册的侦听器重叠
+		// 但这里可能包含其他元数据
 		if (!listenerBeans.isEmpty()) {
 			ConfigurableBeanFactory beanFactory = getBeanFactory();
 			for (String listenerBeanName : listenerBeans) {

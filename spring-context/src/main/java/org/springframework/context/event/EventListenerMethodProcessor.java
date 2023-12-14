@@ -123,6 +123,7 @@ public class EventListenerMethodProcessor
 	public void afterSingletonsInstantiated() {
 		ConfigurableListableBeanFactory beanFactory = this.beanFactory;
 		Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
+		// 获取所有的Bean名称
 		String[] beanNames = beanFactory.getBeanNamesForType(Object.class);
 		for (String beanName : beanNames) {
 			if (!ScopedProxyUtils.isScopedTarget(beanName)) {
@@ -167,7 +168,9 @@ public class EventListenerMethodProcessor
 	}
 
 	private void processBean(final String beanName, final Class<?> targetType) {
-		if (!this.nonAnnotatedClasses.contains(targetType) &&
+		// 2.目标类存在 @EventListener注解
+		// 3.类名称非 org.springframework. 开头且不存在 @Component注解
+ 		if (!this.nonAnnotatedClasses.contains(targetType) &&
 				AnnotationUtils.isCandidateClass(targetType, EventListener.class) &&
 				!isSpringContainerClass(targetType)) {
 
@@ -184,8 +187,9 @@ public class EventListenerMethodProcessor
 					logger.debug("Could not resolve methods for bean with name '" + beanName + "'", ex);
 				}
 			}
-
+			// 如果为空，说明当前解析的Bean不是事件监听器
 			if (CollectionUtils.isEmpty(annotatedMethods)) {
+				// 记录一下，避免再次解析
 				this.nonAnnotatedClasses.add(targetType);
 				if (logger.isTraceEnabled()) {
 					logger.trace("No @EventListener annotations found on bean class: " + targetType.getName());
@@ -202,8 +206,8 @@ public class EventListenerMethodProcessor
 						// 利用EventListenerFactory来对加了@EventListener注解的方法生成ApplicationListener对象
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
-							ApplicationListener<?> applicationListener =
-									factory.createApplicationListener(beanName, targetType, methodToUse);
+							// 创建 ApplicationListener对象
+							ApplicationListener<?> applicationListener = factory.createApplicationListener(beanName, targetType, methodToUse);
 							if (applicationListener instanceof ApplicationListenerMethodAdapter) {
 								((ApplicationListenerMethodAdapter) applicationListener).init(context, this.evaluator);
 							}

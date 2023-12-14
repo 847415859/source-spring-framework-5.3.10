@@ -7,6 +7,5 @@ import org.springframework.stereotype.Service;
  * @Date : 2023/12/11 17:36
  * @Auther : tiankun
  */
-@Service
 public class T1 {
 }

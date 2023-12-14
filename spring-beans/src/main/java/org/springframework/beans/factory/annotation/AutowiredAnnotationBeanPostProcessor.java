@@ -269,7 +269,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 	public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, final String beanName)
 			throws BeanCreationException {
 
-		// Let's check for lookup methods here...
+		//  检查是否存在 lookup 方法
 		if (!this.lookupMethodsChecked.contains(beanName)) {
 			// 判断beanClass是不是java.开头的类，比如String
 			if (AnnotationUtils.isCandidateClass(beanClass, Lookup.class)) {
@@ -285,13 +285,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 								// 将当前method封装成LookupOverride并设置到BeanDefinition的methodOverrides中
 								LookupOverride override = new LookupOverride(method, lookup.value());
 								try {
-									RootBeanDefinition mbd = (RootBeanDefinition)
-											this.beanFactory.getMergedBeanDefinition(beanName);
+									RootBeanDefinition mbd = (RootBeanDefinition) this.beanFactory.getMergedBeanDefinition(beanName);
 									mbd.getMethodOverrides().addOverride(override);
 								}
 								catch (NoSuchBeanDefinitionException ex) {
-									throw new BeanCreationException(beanName,
-											"Cannot apply @Lookup to beans without corresponding bean definition");
+									throw new BeanCreationException(beanName, "Cannot apply @Lookup to beans without corresponding bean definition");
 								}
 							}
 						});
@@ -351,8 +349,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
 								try {
-									Constructor<?> superCtor =
-											userClass.getDeclaredConstructor(candidate.getParameterTypes());
+									Constructor<?> superCtor =  userClass.getDeclaredConstructor(candidate.getParameterTypes());
 									ann = findAutowiredAnnotation(superCtor);
 								}
 								catch (NoSuchMethodException ex) {
@@ -388,6 +385,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
 							// 从上面代码可以得到一个结论，在一个类中，要么只能有一个required为true的构造方法，要么只能有一个或多个required为false的方法
 						}
+						// 无参构造器
 						else if (candidate.getParameterCount() == 0) {
 							// 记录唯一一个无参的构造方法
 							defaultConstructor = candidate;
@@ -396,7 +394,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 						// 有可能存在有参、并且没有添加@Autowired的构造方法
 					}
 
-
+					// 这里面要么都是false,要么只有一个true
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
 						// 如果不存在一个required为true的构造方法，则所有required为false的构造方法和无参构造方法都是合格的

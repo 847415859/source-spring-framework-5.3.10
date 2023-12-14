@@ -75,17 +75,15 @@ abstract class ConfigurationClassUtils {
 
 
 	/**
-	 * Check whether the given bean definition is a candidate for a configuration class
-	 * (or a nested component class declared within a configuration/component class,
-	 * to be auto-registered as well), and mark it accordingly.
-	 * @param beanDef the bean definition to check
+	 * 检查给定的 bean 定义是否是配置类（或在配置组件类中声明的嵌套组件类，也将自动注册）的候选者，并相应地对其进行标记
+	 *
+	 * 	 * @param beanDef the bean definition to check
 	 * @param metadataReaderFactory the current factory in use by the caller
 	 * @return whether the candidate qualifies as (any kind of) configuration class
 	 */
-	public static boolean checkConfigurationClassCandidate(
-			BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
+	public static boolean checkConfigurationClassCandidate(BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 
-		// @Bean定义的配置类Bean是不起作用的
+		// @Bean定义的配置类Bean是不起作用的,
 		String className = beanDef.getBeanClassName();
 		if (className == null || beanDef.getFactoryMethodName() != null) {
 			return false;
@@ -102,8 +100,8 @@ abstract class ConfigurationClassUtils {
 		}
 		// 如果是AbstractBeanDefinition，则解析beanClass得到AnnotationMetadata
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
-			// Check already loaded Class if present...
-			// since we possibly can't even load the class file for this Class.
+			// 检查已加载的类（如果存在）...因为我们甚至可能无法加载该类的类文件。
+
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
 			if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass) ||
 					BeanPostProcessor.class.isAssignableFrom(beanClass) ||
@@ -126,10 +124,10 @@ abstract class ConfigurationClassUtils {
 				return false;
 			}
 		}
-
+		// 获取@Configuration注解的所有属性及值
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
 
-		// 存在@Configuration，并且proxyBeanMethods不为false(为true或为null)时，就是Full配置类
+		// 存在@Configuration，并且proxyBeanMethods不为false(为true或为null)时，就是Full配置类（默认为true）
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
@@ -153,9 +151,9 @@ abstract class ConfigurationClassUtils {
 	}
 
 	/**
-	 * Check the given metadata for a configuration class candidate
-	 * (or nested component class declared within a configuration/component class).
-	 * @param metadata the metadata of the annotated class
+	 * 检查给定的元数据以查找候选配置类（或在配置/组件类中声明的嵌套组件类）。
+	 * 参数：
+	 * 元数据——被注释类的元数据
 	 * @return {@code true} if the given class is to be registered for
 	 * configuration class processing; {@code false} otherwise
 	 */

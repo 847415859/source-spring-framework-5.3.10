@@ -48,23 +48,44 @@ import org.springframework.util.ClassUtils;
  */
 final class ConfigurationClass {
 
+	/**
+	 * 注解元信息
+	 */
 	private final AnnotationMetadata metadata;
 
+	/**
+	 * 资源信息
+	 */
 	private final Resource resource;
 
 	@Nullable
 	private String beanName;
 
+	/**
+	 * 导入他的配置类
+	 */
 	private final Set<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
+	/**
+	 * 添加了 @Bean 的方法
+	 */
 	private final Set<BeanMethod> beanMethods = new LinkedHashSet<>();
 
+	/**
+	 * 解析的 @ImportResource
+	 */
 	private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
 			new LinkedHashMap<>();
 
+	/**
+	 * 导入实现了 ImportBeanDefinitionRegistrar 的类
+	 */
 	private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars =
 			new LinkedHashMap<>();
 
+	/**
+	 * 条件注入跳过的Bean
+	 */
 	final Set<String> skippedBeanMethods = new HashSet<>();
 
 

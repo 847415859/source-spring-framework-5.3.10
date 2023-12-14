@@ -15,14 +15,12 @@ import java.lang.reflect.TypeVariable;
  * @Date : 2023/12/09 10:13
  * @Auther : tiankun
  */
-@Component
-public class UserService extends BaseService<T1,T2>{
+public class UserService{
 
     //
     // @Value("${OS}")
     // public String java;
     //
-    @Resource
     private User user;
     //
     //

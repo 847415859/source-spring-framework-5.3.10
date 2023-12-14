@@ -9,8 +9,12 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class Test {
     public static void main(String[] args) {
-        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Test.class.getPackage().getName());
-        UserService bean = applicationContext.getBean(UserService.class);
+        // 这样初始化不会主动调用 refresh方法
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        applicationContext.register(AppConfig.class);
+        applicationContext.getEnvironment().setRequiredProperties("global.config.path");
+        applicationContext.refresh();
+        OrderService bean = applicationContext.getBean(OrderService.class);
         System.out.println(bean);
     }
 }

@@ -1194,7 +1194,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
 		// 确保bean类在此时实际上已被解析
 		Class<?> beanClass = resolveBeanClass(mbd, beanName);
-
+		// 非public类不允许访问
 		if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
 			throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 					"Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
@@ -1216,11 +1216,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		boolean resolved = false;
 		boolean autowireNecessary = false;
 		if (args == null) {
-			// 获取Bean不给参数才会进行缓存
+			// 获取Bean 无参数才会进行缓存
 			synchronized (mbd.constructorArgumentLock) {
+				// mbd.resolvedConstructorOrFactoryMethod : 用于缓存解析的用于实例化的构造函数或工厂方法。
 				if (mbd.resolvedConstructorOrFactoryMethod != null) {
 					resolved = true;
-					// autowireNecessary表示有没有必要要进行注入，比如当前BeanDefinition用的是无参构造方法，那么autowireNecessary为false，否则为true，表示需要给构造方法参数注入值
+					// autowireNecessary表示有没有必要要进行注入，比如当前BeanDefinition用的是无参构造方法，那么autowireNecessary为false，
+					// 否则为true，表示需要给构造方法参数注入值
 					autowireNecessary = mbd.constructorArgumentsResolved;
 				}
 			}
@@ -1253,7 +1255,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			return autowireConstructor(beanName, mbd, ctors, args);
 		}
 
-		// Preferred constructors for default construction?
+		// 默认构造的首选构造函数?
 		ctors = mbd.getPreferredConstructors();
 		if (ctors != null) {
 			return autowireConstructor(beanName, mbd, ctors, null);
@@ -1341,7 +1343,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	}
 
 	/**
-	 * Instantiate the given bean using its default constructor.
+	 * 使用默认构造函数实例化给定的 bean
 	 * @param beanName the name of the bean
 	 * @param mbd the bean definition for the bean
 	 * @return a BeanWrapper for the new instance

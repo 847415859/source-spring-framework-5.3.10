@@ -165,16 +165,18 @@ class ConfigurationClassBeanDefinitionReader {
 	}
 
 	/**
-	 * Register the {@link Configuration} class itself as a bean definition.
+	 * 将 {@link Configuration} 类本身注册为 bean 定义
 	 */
 	private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
 		AnnotationMetadata metadata = configClass.getMetadata();
 		// 构造BeanDefinition
 		AnnotatedGenericBeanDefinition configBeanDef = new AnnotatedGenericBeanDefinition(metadata);
-
+		// 解析Scope注解
 		ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
 		configBeanDef.setScope(scopeMetadata.getScopeName());
+		// 生成 BeanName
 		String configBeanName = this.importBeanNameGenerator.generateBeanName(configBeanDef, this.registry);
+		// 处理@Lazy、@Primary、@DependsOn、@Role、@Description
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef, metadata);
 		// 包装BeanDefinitionHolder
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
@@ -199,7 +201,6 @@ class ConfigurationClassBeanDefinitionReader {
 		MethodMetadata metadata = beanMethod.getMetadata();
 		String methodName = metadata.getMethodName();
 		// 如果条件装配将其跳过，则该@Bean标注的方法，对应的BeanDefinition不会注册进BeanDefinitionRegistry
-		// Do we need to mark the bean as skipped by its condition?
 		if (this.conditionEvaluator.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
 			configClass.skippedBeanMethods.add(methodName);
 			return;
@@ -259,11 +260,11 @@ class ConfigurationClassBeanDefinitionReader {
 		if (metadata instanceof StandardMethodMetadata) {
 			beanDef.setResolvedFactoryMethod(((StandardMethodMetadata) metadata).getIntrospectedMethod());
 		}
-
+		// 构造器注入
 		beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
 		beanDef.setAttribute(org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor.
 				SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
-
+		// 处理@Lazy、@Primary、@DependsOn、@Role、@Description
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
 
 		Autowire autowire = bean.getEnum("autowire");
@@ -383,7 +384,7 @@ class ConfigurationClassBeanDefinitionReader {
 					throw new UnsupportedOperationException("XML support disabled");
 				}
 				else {
-					// Primarily ".xml" files but for any other extension as well
+					// 主要是“.xml”文件，但也适用于任何其他扩展名
 					readerClass = XmlBeanDefinitionReader.class;
 				}
 			}
@@ -406,8 +407,8 @@ class ConfigurationClassBeanDefinitionReader {
 							"Could not instantiate BeanDefinitionReader class [" + readerClass.getName() + "]");
 				}
 			}
-
 			// TODO SPR-6310: qualify relative path locations as done in AbstractContextLoader.modifyLocations
+			// 调用XmlBeanDefinitionReader解析资源文件
 			reader.loadBeanDefinitions(resource);
 		});
 	}
