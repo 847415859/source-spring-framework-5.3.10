@@ -77,7 +77,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	/** Whether the Advisors are already filtered for the specific target class. */
 	private boolean preFiltered = false;
 
-	/** The AdvisorChainFactory to use. */
+	/** 切面链工厂 */
 	AdvisorChainFactory advisorChainFactory = new DefaultAdvisorChainFactory();
 
 	/** Cache with Method as key and advisor chain List as value. */
@@ -457,15 +457,15 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 
 	/**
-	 * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
-	 * for the given method, based on this configuration.
-	 * @param method the proxied method
-	 * @param targetClass the target class
+	 * 根据此配置确定给定方法的org.aopalliance.intercept.MethodInterceptor对象列表。
+	 *
+	 * @param method 		代理方法
+	 * @param targetClass 	被代理Class
 	 * @return a List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class<?> targetClass) {
+		// 缓存
 		// 代理对象在执行某个方法时，会根据当前ProxyFactory中所设置的Advisor根据当前Method再次进行过滤
-
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
 
 		// 注意这个List，表示的就是Advice链

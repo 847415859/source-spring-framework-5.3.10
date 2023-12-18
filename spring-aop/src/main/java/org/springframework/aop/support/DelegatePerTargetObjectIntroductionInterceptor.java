@@ -69,16 +69,16 @@ public class DelegatePerTargetObjectIntroductionInterceptor extends Introduction
 	public DelegatePerTargetObjectIntroductionInterceptor(Class<?> defaultImplType, Class<?> interfaceType) {
 		this.defaultImplType = defaultImplType;
 		this.interfaceType = interfaceType;
-		// Create a new delegate now (but don't store it in the map).
-		// We do this for two reasons:
-		// 1) to fail early if there is a problem instantiating delegates
-		// 2) to populate the interface map once and once only
+		// 现在创建一个新代理（但不要将其存储在映射中）。我们这样做有两个原因：
+		// 1）如果实例化委托时出现问题，则会提前失败
+		// 2）只填充一次接口映射
 		Object delegate = createNewDelegate();
+		// 获取代理对象所有的接口
 		implementInterfacesOnObject(delegate);
+		// 移除接口里的 IntroductionInterceptor、DynamicIntroductionAdvice
 		suppressInterface(IntroductionInterceptor.class);
 		suppressInterface(DynamicIntroductionAdvice.class);
 	}
-
 
 	/**
 	 * Subclasses may need to override this if they want to perform custom
@@ -90,11 +90,12 @@ public class DelegatePerTargetObjectIntroductionInterceptor extends Introduction
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		// 当前执行的方法是否是接口中的方法
 		if (isMethodOnIntroducedInterface(mi)) {
+			// 获取代理方法
 			Object delegate = getIntroductionDelegateFor(mi.getThis());
-
 			// Using the following method rather than direct reflection,
 			// we get correct handling of InvocationTargetException
 			// if the introduced method throws an exception.
+			// 反射调用方法
 			Object retVal = AopUtils.invokeJoinpointUsingReflection(delegate, mi.getMethod(), mi.getArguments());
 
 			// Massage return value if possible: if the delegate returned itself,
@@ -104,7 +105,7 @@ public class DelegatePerTargetObjectIntroductionInterceptor extends Introduction
 			}
 			return retVal;
 		}
-
+		// 执行原有的逻辑
 		return doProceed(mi);
 	}
 

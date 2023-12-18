@@ -78,11 +78,13 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 
 		Method[] methods = throwsAdvice.getClass().getMethods();
 		for (Method method : methods) {
-			if (method.getName().equals(AFTER_THROWING) &&
-					(method.getParameterCount() == 1 || method.getParameterCount() == 4)) {
+			// 方法名 = afterThrowing && （方法参数个数=1 || 方法参数 = 4）
+			if (method.getName().equals(AFTER_THROWING) && (method.getParameterCount() == 1 || method.getParameterCount() == 4)) {
+				// 获取到最后一个参数的类型
 				Class<?> throwableParam = method.getParameterTypes()[method.getParameterCount() - 1];
+				// 如果类型是 Throwable 的派生类，则
 				if (Throwable.class.isAssignableFrom(throwableParam)) {
-					// An exception handler to register...
+					// 将匹配出来的缓存起来
 					this.exceptionHandlerMap.put(throwableParam, method);
 					if (logger.isDebugEnabled()) {
 						logger.debug("Found exception handler method on throws advice: " + method);
@@ -113,8 +115,10 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 			return mi.proceed();
 		}
 		catch (Throwable ex) {
+			// 获取当前异常缓存执行的方法
 			Method handlerMethod = getExceptionHandler(ex);
 			if (handlerMethod != null) {
+				// 执行异常处理器
 				invokeHandlerMethod(mi, ex, handlerMethod);
 			}
 			throw ex;
@@ -145,6 +149,7 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 
 	private void invokeHandlerMethod(MethodInvocation mi, Throwable ex, Method method) throws Throwable {
 		Object[] handlerArgs;
+		// 判断是异常处理方法是1个参数还是4个参数
 		if (method.getParameterCount() == 1) {
 			handlerArgs = new Object[] {ex};
 		}
@@ -152,6 +157,7 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 			handlerArgs = new Object[] {mi.getMethod(), mi.getArguments(), mi.getThis(), ex};
 		}
 		try {
+			// 执行通知的方法
 			method.invoke(this.throwsAdvice, handlerArgs);
 		}
 		catch (InvocationTargetException targetEx) {

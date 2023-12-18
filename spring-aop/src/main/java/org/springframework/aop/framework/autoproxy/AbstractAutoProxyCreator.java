@@ -138,7 +138,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	private final Map<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
 
 	private final Map<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
-
+	/* 已经被判断定是否进行拦截解析的Bean */
 	private final Map<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
 
 
@@ -538,7 +538,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	 * @return the list of Advisors for the given bean
 	 */
 	protected Advisor[] buildAdvisors(@Nullable String beanName, @Nullable Object[] specificInterceptors) {
-		//  这个地方是适配Spring原生AOP的MethodInterceptor，感兴趣的小伙伴可自行研究
+		//  这个地方是适配Spring原生AOP的MethodInterceptor
 		Advisor[] commonInterceptors = resolveInterceptorNames();
 		List<Object> allInterceptors = new ArrayList<>();
 		if (specificInterceptors != null) {

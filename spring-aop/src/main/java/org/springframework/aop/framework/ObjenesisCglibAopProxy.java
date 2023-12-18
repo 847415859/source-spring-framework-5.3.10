@@ -50,15 +50,15 @@ class ObjenesisCglibAopProxy extends CglibAopProxy {
 	public ObjenesisCglibAopProxy(AdvisedSupport config) {
 		super(config);
 	}
-
-
 	@Override
 	protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) {
 		Class<?> proxyClass = enhancer.createClass();
 		Object proxyInstance = null;
-
+		// 返回此 Objenesis 实例是否值得尝试创建实例，即它是否尚未使用或已知可以工作。
+		// 如果配置的 Objenesis 实例化器策略已被确定在当前 JVM 上根本不起作用，或者“spring.objenesis.ignore”属性已设置为“true”，则此方法返回false 。
 		if (objenesis.isWorthTrying()) {
 			try {
+				// 实例化出代理对象
 				proxyInstance = objenesis.newInstance(proxyClass, enhancer.getUseCache());
 			}
 			catch (Throwable ex) {
@@ -68,7 +68,7 @@ class ObjenesisCglibAopProxy extends CglibAopProxy {
 		}
 
 		if (proxyInstance == null) {
-			// Regular instantiation via default constructor...
+			// 通过默认构造函数定期实例化...
 			try {
 				Constructor<?> ctor = (this.constructorArgs != null ?
 						proxyClass.getDeclaredConstructor(this.constructorArgTypes) :
@@ -82,7 +82,7 @@ class ObjenesisCglibAopProxy extends CglibAopProxy {
 						"and regular proxy instantiation via default constructor fails as well", ex);
 			}
 		}
-
+		// 设置增强的回调函数
 		((Factory) proxyInstance).setCallbacks(callbacks);
 		return proxyInstance;
 	}

@@ -225,11 +225,11 @@ public abstract class AopUtils {
 		Assert.notNull(pc, "Pointcut must not be null");
 		// 判断targetClass是不是和当前Pointcut匹配
 
-		// 先判断类
+		// 先判断类，连类都切入不进去，那干脆没必要往下走了
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
-
+		// 获取方法匹配器
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
@@ -242,12 +242,15 @@ public abstract class AopUtils {
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// 如果不是代理类时才需要进行增强
 		if (!Proxy.isProxyClass(targetClass)) {
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		// 获取该类所有的父类
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
 
 		for (Class<?> clazz : classes) {
+			// 获取所有的方法
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
 				if (introductionAwareMethodMatcher != null ?

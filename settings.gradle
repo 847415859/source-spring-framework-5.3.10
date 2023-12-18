@@ -64,4 +64,6 @@ include 'tuling-vip-demo'
 include 'spring-tuling-webmvc'
 include 'spring-tuling-boot'
 include 'qiankun-saimple-demo'
+include 'qiankun-simple-aop'
+include 'qiankun-simple-transcation'
 

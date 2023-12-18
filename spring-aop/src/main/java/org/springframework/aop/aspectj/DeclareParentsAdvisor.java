@@ -35,10 +35,13 @@ import org.springframework.aop.support.DelegatingIntroductionInterceptor;
  */
 public class DeclareParentsAdvisor implements IntroductionAdvisor {
 
+	// 通知
 	private final Advice advice;
 
+	// 需要代理处理类
 	private final Class<?> introducedInterface;
 
+	// 类匹配器
 	private final ClassFilter typePatternClassFilter;
 
 

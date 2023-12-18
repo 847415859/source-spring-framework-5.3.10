@@ -172,31 +172,31 @@ class CglibAopProxy implements AopProxy, Serializable {
 			if (rootClass.getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
 				// 获取真正的被代理类
 				proxySuperClass = rootClass.getSuperclass();
-				// 获取被代理类所实现的接口
+				// 获取代理类所实现的接口，并将接口传递给当前的advised里
 				Class<?>[] additionalInterfaces = rootClass.getInterfaces();
 				for (Class<?> additionalInterface : additionalInterfaces) {
 					this.advised.addInterface(additionalInterface);
 				}
 			}
-
 			// Validate the class, writing log messages as necessary.
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
-			// Configure CGLIB Enhancer...
+			// 配置 CGLIB Enhancer...
 			Enhancer enhancer = createEnhancer();
 			if (classLoader != null) {
 				enhancer.setClassLoader(classLoader);
-				if (classLoader instanceof SmartClassLoader &&
-						((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) {
+				if (classLoader instanceof SmartClassLoader && ((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) {
 					enhancer.setUseCache(false);
 				}
 			}
-
 			// 被代理类，代理类的父类
 			enhancer.setSuperclass(proxySuperClass);
 			// 代理类额外要实现的接口
 			enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));
+			// 设置名称生成策略
 			enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);
+			// CGLIB GeneratorStrategy 变体将应用程序 ClassLoader 公开为类生成时的当前线程上下文 ClassLoader。
+			// Spring 的 ASM 变体中的 ASM ClassWriter 将在进行公共超类解析时拾取它。
 			enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 
 			// 获取和被代理类所匹配的Advisor
@@ -210,7 +210,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 					this.advised.getConfigurationOnlyCopy(), this.fixedInterceptorMap, this.fixedInterceptorOffset));
 			enhancer.setCallbackTypes(types);
 
-			// Generate the proxy class and create a proxy instance.
+			// 生成代理类并创建代理实例。
 			return createProxyClassAndInstance(enhancer, callbacks);
 		}
 		catch (CodeGenerationException | IllegalArgumentException ex) {

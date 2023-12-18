@@ -40,22 +40,25 @@ public interface Advised extends TargetClassAware {
 	/**
 	 * Return whether the Advised configuration is frozen,
 	 * in which case no advice changes can be made.
+	 * 返回Advised配置是否被冻结，在这种情况下不能进行任何建议更改。
 	 */
 	boolean isFrozen();
 
 	/**
-	 * Are we proxying the full target class instead of specified interfaces?
+	 * 我们是否代理完整的目标类而不是指定的接口？
 	 */
 	boolean isProxyTargetClass();
 
 	/**
 	 * Return the interfaces proxied by the AOP proxy.
 	 * <p>Will not include the target class, which may also be proxied.
+	 * 返回AOP代理所代理的接口
 	 */
 	Class<?>[] getProxiedInterfaces();
 
 	/**
 	 * Determine whether the given interface is proxied.
+	 * 确定是否代理了给定接口。
 	 * @param intf the interface to check
 	 */
 	boolean isInterfaceProxied(Class<?> intf);

@@ -171,7 +171,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
 
 		// 当前interceptor是InterceptorAndDynamicMethodMatcher，则先进行匹配，匹配成功后再调用该interceptor
-		// 如果没有匹配则递归调用proceed()方法，调用下一个interceptor
+		// 如果没有匹配则递归调用proceed()方法，调用下一个interceptor (isRuntime为true)
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
@@ -200,8 +200,8 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	}
 
 	/**
-	 * Invoke the joinpoint using reflection.
-	 * Subclasses can override this to use custom invocation.
+	 * 使用反射调用连接点。（指定被代理的方法逻辑）
+	 *
 	 * @return the return value of the joinpoint
 	 * @throws Throwable if invoking the joinpoint resulted in an exception
 	 */

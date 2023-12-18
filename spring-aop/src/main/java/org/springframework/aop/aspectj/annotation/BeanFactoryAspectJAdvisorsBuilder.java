@@ -107,7 +107,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 						if (beanType == null) {
 							continue;
 						}
-						// 当前解析bean的所属类型是一个切面类
+						// 当前解析bean的所属类型是一个切面类,使用加有 @Aspect 注解
 						if (this.advisorFactory.isAspect(beanType)) {
 							aspectNames.add(beanName);
 							// 切面的注解信息

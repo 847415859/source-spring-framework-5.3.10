@@ -478,17 +478,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @see #doCreateBean
 	 */
 	@Override
-	protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
-			throws BeanCreationException {
-
+	protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) throws BeanCreationException {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Creating instance of bean '" + beanName + "'");
 		}
 		RootBeanDefinition mbdToUse = mbd;
-
-		// Make sure bean class is actually resolved at this point, and
-		// clone the bean definition in case of a dynamically resolved Class
-		// which cannot be stored in the shared merged bean definition.
 		// 马上就要实例化Bean了，确保beanClass被加载了（因为我们之前在BeanDefinition.beanClass 存放的全限定类名字符串）
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		// 这块的逻辑是兼容如果是以表达式解析出来的 Class就直接返回了，但是我们原有的BeanDefinition还是存放的是表达式，
@@ -497,7 +491,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			mbdToUse = new RootBeanDefinition(mbd);
 			mbdToUse.setBeanClass(resolvedClass);
 		}
-
 		// 提前标记下需要覆盖的方法
 		try {
 			// 对于prepareMethodOverrides方法，在BeanDefinition注册到Spring容器时已经讲解过了，
@@ -505,10 +498,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			mbdToUse.prepareMethodOverrides();
 		}
 		catch (BeanDefinitionValidationException ex) {
-			throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(),
-					beanName, "Validation of method overrides failed", ex);
+			throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(), beanName, "Validation of method overrides failed", ex);
 		}
-
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
 			// 实例化前 (调用：InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation)
@@ -519,10 +510,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 		catch (Throwable ex) {
-			throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName,
-					"BeanPostProcessor before instantiation of bean failed", ex);
+			throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName, "BeanPostProcessor before instantiation of bean failed", ex);
 		}
-
 		try {
 			// 核心：真正创建Bean
 			Object beanInstance = doCreateBean(beanName, mbdToUse, args);

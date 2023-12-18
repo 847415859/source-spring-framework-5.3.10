@@ -50,9 +50,9 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 	@Override
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
 			Advised config, Method method, @Nullable Class<?> targetClass) {
-
 		// This is somewhat tricky... We have to process introductions first,
 		// but we need to preserve order in the ultimate list.
+		// 增强器适配器的注册器，它会根据增强器来解析，返回拦截器数组
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 		// 从ProxyFactory中拿到所设置的Advice（添加时被封装成了DefaultPointcutAdvisor）
 		// 添加的时候会控制顺序
@@ -82,9 +82,10 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 						// 方法匹配
 						match = mm.matches(method, actualClass);
 					}
-
+					// 当前执行的方法需要被代理拦截
 					if (match) {
 						// 如果匹配则将Advisor封装成为Interceptor，当前Advisor中的Advice可能即是MethodBeforeAdvice，也是ThrowsAdvice
+						// 所有的通知类都会经过适配器被封装为 MehtodInterceptor
 						MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 						if (mm.isRuntime()) {	// 需要在根据传入的参数做进一步匹配
 							// Creating a new object instance in the getInterceptors() method
