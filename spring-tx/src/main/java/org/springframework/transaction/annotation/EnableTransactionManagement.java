@@ -163,16 +163,11 @@ import org.springframework.core.Ordered;
 public @interface EnableTransactionManagement {
 
 	/**
-	 * Indicate whether subclass-based (CGLIB) proxies are to be created ({@code true}) as
-	 * opposed to standard Java interface-based proxies ({@code false}). The default is
-	 * {@code false}. <strong>Applicable only if {@link #mode()} is set to
-	 * {@link AdviceMode#PROXY}</strong>.
-	 * <p>Note that setting this attribute to {@code true} will affect <em>all</em>
-	 * Spring-managed beans requiring proxying, not just those marked with
-	 * {@code @Transactional}. For example, other beans marked with Spring's
-	 * {@code @Async} annotation will be upgraded to subclass proxying at the same
-	 * time. This approach has no negative impact in practice unless one is explicitly
-	 * expecting one type of proxy vs another, e.g. in tests.
+	 * 指示是否要创建基于子类（CGLIB）的代理（true），而不是基于标准Java接口的代理（false）。默认值为false。
+	 * 仅当mode（）设置为AdviceMode时才适用 Proxy。
+	 *
+	 * 请注意，将此属性设置为{@code-true}将影响所有需要代理的Spring托管bean，而不仅仅是那些用{@code@Transactional}标记的bean。
+	 * 例如，标记有Spring的{@code@Async}注释的其他bean将同时升级为子类代理
 	 */
 	boolean proxyTargetClass() default false;
 

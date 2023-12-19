@@ -23,6 +23,7 @@ import org.springframework.lang.Nullable;
 /**
  * Auto-proxy creator that considers infrastructure Advisor beans only,
  * ignoring any application-defined Advisors.
+ * 自动代理创建者，只考虑基础架构Advisor bean，忽略任何应用程序定义的Advisors。
  *
  * @author Juergen Hoeller
  * @since 2.0.7
@@ -40,9 +41,15 @@ public class InfrastructureAdvisorAutoProxyCreator extends AbstractAdvisorAutoPr
 		this.beanFactory = beanFactory;
 	}
 
+	/**
+	 * 判断是否是一个合格的切面Bean
+	 * @param beanName the name of the Advisor bean
+	 * @return
+	 */
 	@Override
 	protected boolean isEligibleAdvisorBean(String beanName) {
 		// 判断是不是一个合格的Advisor
+		// BeanFactory中需要包含指定beanname的 BeanDefinition || 角色为 2,（系统内部使用）
 		return (this.beanFactory != null && this.beanFactory.containsBeanDefinition(beanName) &&
 				this.beanFactory.getBeanDefinition(beanName).getRole() == BeanDefinition.ROLE_INFRASTRUCTURE);
 	}

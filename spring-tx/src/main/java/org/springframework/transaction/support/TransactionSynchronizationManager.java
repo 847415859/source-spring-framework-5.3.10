@@ -82,18 +82,19 @@ public abstract class TransactionSynchronizationManager {
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
+	// 当前事务的事务同步器
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
-
+	// 当前事务名称
 	private static final ThreadLocal<String> currentTransactionName =
 			new NamedThreadLocal<>("Current transaction name");
-
+	// 当前事务是否是只读事务
 	private static final ThreadLocal<Boolean> currentTransactionReadOnly =
 			new NamedThreadLocal<>("Current transaction read-only status");
-
+	// 当前事务的隔离级别
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<>("Current transaction isolation level");
-
+	// 当前事务处于激活状态
 	private static final ThreadLocal<Boolean> actualTransactionActive =
 			new NamedThreadLocal<>("Actual transaction active");
 
@@ -129,7 +130,7 @@ public abstract class TransactionSynchronizationManager {
 	}
 
 	/**
-	 * Retrieve a resource for the given key that is bound to the current thread.
+	 * 检索绑定到当前线程的给定键的资源。
 	 * @param key the key to check (usually the resource factory)
 	 * @return a value bound to the current thread (usually the active
 	 * resource object), or {@code null} if none
@@ -448,8 +449,8 @@ public abstract class TransactionSynchronizationManager {
 
 
 	/**
-	 * Clear the entire transaction synchronization state for the current thread:
-	 * registered synchronizations as well as the various transaction characteristics.
+	 * 清除当前线程的整个事务同步状态：已注册的同步以及各种事务特性。
+	 *
 	 * @see #clearSynchronization()
 	 * @see #setCurrentTransactionName
 	 * @see #setCurrentTransactionReadOnly

@@ -78,9 +78,8 @@ public abstract class AbstractFallbackTransactionAttributeSource
 	private transient StringValueResolver embeddedValueResolver;
 
 	/**
-	 * Cache of TransactionAttributes, keyed by method on a specific target class.
-	 * <p>As this base class is not marked Serializable, the cache will be recreated
-	 * after serialization - provided that the concrete subclass is Serializable.
+	 * TransactionAttributes的缓存，由特定目标类上的方法键控由于这个基类没有标记为Serializable，所以在序列化之后将重新创建缓存，前提是具体的子类是Serializable。
+	 * key为 class+Method
 	 */
 	private final Map<Object, TransactionAttribute> attributeCache = new ConcurrentHashMap<>(1024);
 

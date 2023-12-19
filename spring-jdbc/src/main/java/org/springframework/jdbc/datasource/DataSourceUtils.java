@@ -163,7 +163,7 @@ public abstract class DataSourceUtils {
 	}
 
 	/**
-	 * Prepare the given Connection with the given transaction semantics.
+	 * 准备具有给定事务语义的给定Connection
 	 * @param con the Connection to prepare
 	 * @param definition the transaction definition to apply
 	 * @return the previous isolation level, if any

@@ -39,7 +39,6 @@ import org.springframework.core.type.AnnotationMetadata;
 public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 
 	private final Log logger = LogFactory.getLog(getClass());
-
 	/**
 	 * Register, escalate, and configure the standard auto proxy creator (APC) against the
 	 * given registry. Works by finding the nearest annotation declared on the importing
@@ -58,6 +57,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 		boolean candidateFound = false;
+		// 获取主动导入这个类的类注解
 		Set<String> annTypes = importingClassMetadata.getAnnotationTypes();
 		//  搜寻所有标注的注解
 		for (String annType : annTypes) {
@@ -65,7 +65,7 @@ public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 			if (candidate == null) {
 				continue;
 			}
-			//  // 获取注解上的mode和proxyTargetClass属性
+			// 获取注解上的mode和proxyTargetClass属性
 			Object mode = candidate.get("mode");
 			Object proxyTargetClass = candidate.get("proxyTargetClass");
 			if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
