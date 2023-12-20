@@ -58,9 +58,7 @@ settings.gradle.projectsLoaded {
 	}
 }
 
-include 'tuling-web'
-include 'tuling-boot'
-//include 'tuling-vip-demo'
+
 include 'spring-tuling-webmvc'
 include 'spring-tuling-boot'
 include 'qiankun-saimple-demo'
