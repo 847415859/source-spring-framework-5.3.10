@@ -21,7 +21,7 @@ import org.springframework.expression.ParserContext;
 /**
  * Configurable {@link ParserContext} implementation for template parsing. Expects the
  * expression prefix and suffix as constructor arguments.
- *
+ * 用于模板解析的可配置ParserContext实现。应将表达式前缀和后缀作为构造函数参数。
  * @author Juergen Hoeller
  * @since 3.0
  */

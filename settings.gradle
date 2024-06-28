@@ -64,4 +64,5 @@ include 'spring-tuling-boot'
 include 'qiankun-saimple-demo'
 include 'qiankun-simple-aop'
 include 'qiankun-simple-transcation'
+include 'qiankun-simple-web'
 

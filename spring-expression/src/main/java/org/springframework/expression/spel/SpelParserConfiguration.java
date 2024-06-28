@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Configuration object for the SpEL expression parser.
- *
+ * SpEL表达式分析器的配置对象。
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author Andy Clement
@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
 public class SpelParserConfiguration {
 
 	/** System property to configure the default compiler mode for SpEL expression parsers: {@value}. */
+	// 用于为SpEL表达式解析器配置默认编译器模式的系统属性：“spring.expression.compiler.mode”。
 	public static final String SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spring.expression.compiler.mode";
 
 

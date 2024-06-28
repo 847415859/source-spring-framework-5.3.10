@@ -1,5 +1,6 @@
 package com.qiankun;
 
+import com.qiankun.autowired.AppConfig;
 import com.qiankun.service.OrderService;
 import com.qiankun.service.User;
 import com.qiankun.service.UserService;
@@ -21,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
@@ -34,10 +36,14 @@ public class Test {
 
 	public static void main(String[] args) {
 
+		// ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+		// Object user = applicationContext.getBean("user");
+
+
 		// 创建一个Spring容器
 		AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
-		applicationContext.getBean("userFactoryBean");
-
+		// applicationContext.getBean("userFactoryBean");
+		// applicationContext.publishEvent(new ApplicationEvent("发布事件") {});
 		// OrderService orderService1 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService2 = applicationContext.getBean("orderService", OrderService.class);
 		// OrderService orderService3 = applicationContext.getBean("orderService", OrderService.class);

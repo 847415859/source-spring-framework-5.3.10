@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation 'org.projectlombok:lombok:1.18.20'
     implementation group: 'com.alibaba.fastjson2', name: 'fastjson2', version: '2.0.43'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.14'
 
     compile(project(":spring-jdbc"))
     compile(project(":spring-context"))

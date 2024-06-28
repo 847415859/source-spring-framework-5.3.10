@@ -238,7 +238,7 @@ public class ScheduledAnnotationBeanPostProcessor
 		if (this.scheduler != null) {
 			this.registrar.setScheduler(this.scheduler);
 		}
-
+		// 获取自定义定时任务配置器
 		if (this.beanFactory instanceof ListableBeanFactory) {
 			Map<String, SchedulingConfigurer> beans =
 					((ListableBeanFactory) this.beanFactory).getBeansOfType(SchedulingConfigurer.class);
@@ -248,11 +248,11 @@ public class ScheduledAnnotationBeanPostProcessor
 				configurer.configureTasks(this.registrar);
 			}
 		}
-
+		// 如果有任务，且注册器中没有调度器
 		if (this.registrar.hasTasks() && this.registrar.getScheduler() == null) {
 			Assert.state(this.beanFactory != null, "BeanFactory must be set to find scheduler by type");
 			try {
-				// Search for TaskScheduler bean...
+				// 寻找调度器Bean
 				this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, false));
 			}
 			catch (NoUniqueBeanDefinitionException ex) {
@@ -278,7 +278,7 @@ public class ScheduledAnnotationBeanPostProcessor
 					logger.trace("Could not find default TaskScheduler bean - attempting to find ScheduledExecutorService: " +
 							ex.getMessage());
 				}
-				// Search for ScheduledExecutorService bean next...
+				// 没有找到 TaskScheduler 的Bean，尝试寻找 ScheduledExecutorService
 				try {
 					this.registrar.setScheduler(resolveSchedulerBean(this.beanFactory, ScheduledExecutorService.class, false));
 				}
@@ -344,18 +344,21 @@ public class ScheduledAnnotationBeanPostProcessor
 	public Object postProcessBeforeInitialization(Object bean, String beanName) {
 		return bean;
 	}
-
 	@Override
 	public Object postProcessAfterInitialization(Object bean, String beanName) {
+		// 跳过Spring基础设置标注和线程池类
 		if (bean instanceof AopInfrastructureBean || bean instanceof TaskScheduler ||
 				bean instanceof ScheduledExecutorService) {
 			// Ignore AOP infrastructure such as scoped proxies.
 			return bean;
 		}
-
+		// 获取目标类，如果是代理类，获取其原始类
 		Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
+		// 判断是
 		if (!this.nonAnnotatedClasses.contains(targetClass) &&
+				// 排除java.开头的类
 				AnnotationUtils.isCandidateClass(targetClass, Arrays.asList(Scheduled.class, Schedules.class))) {
+			// 获取类上方法上的 @Scheduled 注解
 			Map<Method, Set<Scheduled>> annotatedMethods = MethodIntrospector.selectMethods(targetClass,
 					(MethodIntrospector.MetadataLookup<Set<Scheduled>>) method -> {
 						Set<Scheduled> scheduledAnnotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(
@@ -390,6 +393,7 @@ public class ScheduledAnnotationBeanPostProcessor
 	 */
 	protected void processScheduled(Scheduled scheduled, Method method, Object bean) {
 		try {
+			// 创建一个任务
 			Runnable runnable = createRunnable(bean, method);
 			boolean processedSchedule = false;
 			String errorMessage =
@@ -397,11 +401,12 @@ public class ScheduledAnnotationBeanPostProcessor
 
 			Set<ScheduledTask> tasks = new LinkedHashSet<>(4);
 
-			// Determine initial delay
+			// 初始化延迟解析
 			long initialDelay = scheduled.initialDelay();
 			String initialDelayString = scheduled.initialDelayString();
 			if (StringUtils.hasText(initialDelayString)) {
 				Assert.isTrue(initialDelay < 0, "Specify 'initialDelay' or 'initialDelayString', not both");
+				// 使用SpEL解析表达式
 				if (this.embeddedValueResolver != null) {
 					initialDelayString = this.embeddedValueResolver.resolveStringValue(initialDelayString);
 				}
@@ -416,10 +421,11 @@ public class ScheduledAnnotationBeanPostProcessor
 				}
 			}
 
-			// Check cron expression
+			// 1,Corn 表达式
 			String cron = scheduled.cron();
 			if (StringUtils.hasText(cron)) {
 				String zone = scheduled.zone();
+				// 使用SpEL解析表达式解析
 				if (this.embeddedValueResolver != null) {
 					cron = this.embeddedValueResolver.resolveStringValue(cron);
 					zone = this.embeddedValueResolver.resolveStringValue(zone);
@@ -427,6 +433,7 @@ public class ScheduledAnnotationBeanPostProcessor
 				if (StringUtils.hasLength(cron)) {
 					Assert.isTrue(initialDelay == -1, "'initialDelay' not supported for cron triggers");
 					processedSchedule = true;
+					// 表示开启CRON表达式
 					if (!Scheduled.CRON_DISABLED.equals(cron)) {
 						TimeZone timeZone;
 						if (StringUtils.hasText(zone)) {
@@ -440,18 +447,19 @@ public class ScheduledAnnotationBeanPostProcessor
 				}
 			}
 
-			// At this point we don't need to differentiate between initial delay set or not anymore
+			// 此时我们不再需要区分初始延迟是否设置
 			if (initialDelay < 0) {
 				initialDelay = 0;
 			}
 
-			// Check fixed delay
+			// 2.固定的延迟
 			long fixedDelay = scheduled.fixedDelay();
 			if (fixedDelay >= 0) {
 				Assert.isTrue(!processedSchedule, errorMessage);
 				processedSchedule = true;
 				tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
 			}
+			// 解析固定延迟值
 			String fixedDelayString = scheduled.fixedDelayString();
 			if (StringUtils.hasText(fixedDelayString)) {
 				if (this.embeddedValueResolver != null) {
@@ -471,13 +479,14 @@ public class ScheduledAnnotationBeanPostProcessor
 				}
 			}
 
-			// Check fixed rate
+			// 3.固定的频率
 			long fixedRate = scheduled.fixedRate();
 			if (fixedRate >= 0) {
 				Assert.isTrue(!processedSchedule, errorMessage);
 				processedSchedule = true;
 				tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
 			}
+			// 固定的频率表达式
 			String fixedRateString = scheduled.fixedRateString();
 			if (StringUtils.hasText(fixedRateString)) {
 				if (this.embeddedValueResolver != null) {

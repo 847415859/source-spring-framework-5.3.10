@@ -196,6 +196,7 @@ public abstract class AbstractApplicationEventMulticaster
 
 
 		// Quick check for existing entry on ConcurrentHashMap
+		// 此处使用监听器缓存+双检锁，保证快速取出监听器
 		CachedListenerRetriever existingRetriever = this.retrieverCache.get(cacheKey);
 		if (existingRetriever == null) {
 			// Caching a new ListenerRetriever if possible

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ImportResource;
  * @Auther : tiankun
  */
 @Configuration(proxyBeanMethods = true)
-// @ComponentScan("com.qiankun.autowired")
+@ComponentScan("com.qiankun.autowired")
 // @ImportResource(locations = {"spring.xml"})
 public class AppConfig {
 

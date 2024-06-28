@@ -34,7 +34,7 @@ public enum AdviceMode {
 	PROXY,
 
 	/**
-	 * AspectJ weaving-based advice.
+	 * AspectJ weaving-based advice.AspectJAsyncConfiguration
 	 */
 	ASPECTJ
 

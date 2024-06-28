@@ -28,7 +28,9 @@ import org.springframework.lang.Nullable;
  * string literal. It is used with CompositeStringExpression when representing a template
  * expression which is made up of pieces - some being real expressions to be handled by
  * an EL implementation like SpEL, and some being just textual elements.
- *
+ * 表达式接口的一个非常简单的硬编码实现，表示字符串文字。
+ * 当表示由多个部分组成的模板表达式时，它与CompositeStringExpression
+ * 一起使用——有些是要由像SpEL这样的EL实现处理的真实表达式，有些只是文本元素
  * @author Andy Clement
  * @author Juergen Hoeller
  * @since 3.0

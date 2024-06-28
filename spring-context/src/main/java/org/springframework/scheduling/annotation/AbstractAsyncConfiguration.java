@@ -42,18 +42,22 @@ import org.springframework.util.CollectionUtils;
 @Configuration(proxyBeanMethods = false)
 public abstract class AbstractAsyncConfiguration implements ImportAware {
 
+	//  @EnableAsync 注解的属性值
 	@Nullable
 	protected AnnotationAttributes enableAsync;
 
+	// 执行任务的线程池
 	@Nullable
 	protected Supplier<Executor> executor;
 
+	// 异常处理
 	@Nullable
 	protected Supplier<AsyncUncaughtExceptionHandler> exceptionHandler;
 
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		// 获取 @EnableAsync 注解的属性值
 		this.enableAsync = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableAsync.class.getName(), false));
 		if (this.enableAsync == null) {
@@ -64,6 +68,7 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 
 	/**
 	 * Collect any {@link AsyncConfigurer} beans through autowiring.
+	 * 自动注入 AsyncConfigurer 接口的实现类
 	 */
 	@Autowired(required = false)
 	void setConfigurers(Collection<AsyncConfigurer> configurers) {
@@ -74,8 +79,9 @@ public abstract class AbstractAsyncConfiguration implements ImportAware {
 			throw new IllegalStateException("Only one AsyncConfigurer may exist");
 		}
 		AsyncConfigurer configurer = configurers.iterator().next();
+		// 获取异步执行线程池
 		this.executor = configurer::getAsyncExecutor;
+		// 获取异常处理类
 		this.exceptionHandler = configurer::getAsyncUncaughtExceptionHandler;
 	}
-
 }

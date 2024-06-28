@@ -163,6 +163,10 @@ import org.springframework.core.Ordered;
 public @interface EnableAsync {
 
 	/**
+	 * 指示要在类或方法级别检测的“async”注释类型。
+	 * 默认情况下，Spring的@Async注释和EJB 3.1@javax.EJB。将检测到异步注释。
+	 * 该属性的存在使得开发人员可以提供自己的自定义注释类型，以指示应该异步调用一个方法（或给定类的所有方法）。
+	 *
 	 * Indicate the 'async' annotation type to be detected at either class
 	 * or method level.
 	 * <p>By default, both Spring's @{@link Async} annotation and the EJB 3.1
@@ -174,6 +178,10 @@ public @interface EnableAsync {
 	Class<? extends Annotation> annotation() default Annotation.class;
 
 	/**
+	 * 指示是否要创建基于子类（CGLIB）的代理，而不是基于标准Java接口的代理。
+	 * 仅当模式设置为“建议模式”时才适用。代理。默认值为false。
+	 * 请注意，将此属性设置为true将影响所有需要代理的Spring托管bean，而不仅仅是那些用@Async标记的bean。
+	 * 例如，其他标记有Spring的@Transactional注释的bean将同时升级为子类代理。这种方法在实践中没有负面影响，除非明确地期望一种类型的代理与另一种类型——例如，在测试中。
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies.
 	 * <p><strong>Applicable only if the {@link #mode} is set to {@link AdviceMode#PROXY}</strong>.
@@ -188,6 +196,10 @@ public @interface EnableAsync {
 	boolean proxyTargetClass() default false;
 
 	/**
+	 * 指示应如何应用异步建议。
+	 * 默认设置为AdviceMode。代理。请注意，代理模式仅允许通过代理拦截呼叫。同一类中的本地呼叫不能以这种方式被拦截；
+	 * 本地调用中对此类方法的异步注释将被忽略，因为Spring的拦截器甚至不会在此类运行时场景中启动。
+	 * 对于更高级的拦截模式，请考虑将其切换到AdviceMode。ASPECTJ。
 	 * Indicate how async advice should be applied.
 	 * <p><b>The default is {@link AdviceMode#PROXY}.</b>
 	 * Please note that proxy mode allows for interception of calls through the proxy
@@ -200,6 +212,9 @@ public @interface EnableAsync {
 	AdviceMode mode() default AdviceMode.PROXY;
 
 	/**
+	 * 指示应用AsyncAnnotationBeanPostProcessor的顺序。
+	 * 默认值为“有序”。LOWEST_PRECDENCE以便在所有其他后处理器之后运行，这样它就可以向现有代理添加顾问，而不是双重代理。
+	 *
 	 * Indicate the order in which the {@link AsyncAnnotationBeanPostProcessor}
 	 * should be applied.
 	 * <p>The default is {@link Ordered#LOWEST_PRECEDENCE} in order to run

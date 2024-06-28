@@ -36,6 +36,10 @@ import org.springframework.lang.Nullable;
  * being a LiteralExpression representing 'Hello ' and the second part being a real
  * expression that will call {@code getName()} when invoked.
  *
+ * 表示分解为多个部分的模板表达式。每个片段都将是一个表达式，但模板的纯文本部分将表示为LiteralExpression对象。模板表达式的示例可能是：
+ * “你好$｛getName（）｝”
+ * 其将被表示为两个部分的CompositeStringExpression。第一部分是表示“Hello”的LiteralExpression，第二部分是在调用时将调用getName（）的真实表达式。
+ *
  * @author Andy Clement
  * @author Juergen Hoeller
  * @since 3.0

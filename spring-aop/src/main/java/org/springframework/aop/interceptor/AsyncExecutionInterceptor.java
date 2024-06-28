@@ -89,10 +89,11 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 		super(defaultExecutor, exceptionHandler);
 	}
 
-
 	/**
 	 * Intercept the given method invocation, submit the actual calling of the method to
 	 * the correct task executor and return immediately to the caller.
+	 * 截取给定的方法调用，将方法的实际调用提交给正确的任务执行器，并立即返回给调用者。
+	 *
 	 * @param invocation the method to intercept and make asynchronous
 	 * @return {@link Future} if the original method returns {@code Future}; {@code null}
 	 * otherwise.
@@ -100,18 +101,21 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 	@Override
 	@Nullable
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
+		// 找到 被代理的bean和执行的方法
 		Class<?> targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
 		Method specificMethod = ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
+		// 获取桥接方法的原始方法
 		final Method userDeclaredMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
-
+		// 获取异步任务执行器
 		AsyncTaskExecutor executor = determineAsyncExecutor(userDeclaredMethod);
 		if (executor == null) {
 			throw new IllegalStateException(
 					"No executor specified and no default executor set on AsyncExecutionInterceptor either");
 		}
-
+		// 创建任务
 		Callable<Object> task = () -> {
 			try {
+				// 执行当前任务
 				Object result = invocation.proceed();
 				if (result instanceof Future) {
 					return ((Future<?>) result).get();
@@ -125,7 +129,7 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
 			}
 			return null;
 		};
-
+		// 提交任务，由线程池来执行
 		return doSubmit(task, executor, invocation.getMethod().getReturnType());
 	}
 

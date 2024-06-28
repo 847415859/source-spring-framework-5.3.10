@@ -41,7 +41,9 @@ import org.springframework.util.Assert;
  * evaluated in a specified context. An expression can be evaluated standalone or in a
  * specified context. During expression evaluation the context may be asked to resolve
  * references to types, beans, properties, and methods.
- *
+ * SpelExpression表示已解析（有效）的表达式，该表达式已准备好在指定的上下文中进行求值。
+ * 表达式可以独立计算，也可以在指定的上下文中计算。在表达式求值期间，
+ * 可能会要求上下文解析对类型、bean、属性和方法的引用。
  * @author Andy Clement
  * @author Juergen Hoeller
  * @since 3.0

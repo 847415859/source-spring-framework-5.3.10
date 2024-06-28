@@ -68,11 +68,12 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 			// Ignore AOP infrastructure such as scoped proxies.
 			return bean;
 		}
-
+		// 判断当前bean是否已经被代理过，如果已经代理过，则直接加入到当前切面
+		// 被代理过会给代理对象加上 Advised 接口
 		if (bean instanceof Advised) {
 			Advised advised = (Advised) bean;
 			if (!advised.isFrozen() && isEligible(AopUtils.getTargetClass(bean))) {
-				// Add our local Advisor to the existing proxy's Advisor chain...
+				// 默认为 true, 所以当前这个 advisor 会被放在最前，(异步要放在最前这个是合理的)
 				if (this.beforeExistingAdvisors) {
 					advised.addAdvisor(0, this.advisor);
 				}
@@ -83,6 +84,8 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 			}
 		}
 
+		// 正常情况我们的bean不是一个代理对象，所以走的是这个
+		// 判断当前bean是否符合条件，如果符合条件，则进行代理
 		if (isEligible(bean, beanName)) {
 			ProxyFactory proxyFactory = prepareProxyFactory(bean, beanName);
 			if (!proxyFactory.isProxyTargetClass()) {

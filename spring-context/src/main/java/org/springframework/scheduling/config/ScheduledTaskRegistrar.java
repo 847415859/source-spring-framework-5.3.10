@@ -58,6 +58,9 @@ import org.springframework.util.CollectionUtils;
 public class ScheduledTaskRegistrar implements ScheduledTaskHolder, InitializingBean, DisposableBean {
 
 	/**
+	 * 一个特殊的cron表达式值，指示禁用的触发器：“-”。
+	 * 当从外部源（例如，从Environment中的属性）检索所提供表达式的值时，这主要用于addCronTask（Runnable，String）时。
+	 *
 	 * A special cron expression value that indicates a disabled trigger: {@value}.
 	 * <p>This is primarily meant for use with {@link #addCronTask(Runnable, String)}
 	 * when the value for the supplied {@code expression} is retrieved from an
@@ -68,27 +71,27 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	 */
 	public static final String CRON_DISABLED = "-";
 
-
+	// 任务调度器
 	@Nullable
 	private TaskScheduler taskScheduler;
-
+	// 默认为一个单线程的线程池
 	@Nullable
 	private ScheduledExecutorService localExecutor;
-
+	//核心调度任务
 	@Nullable
 	private List<TriggerTask> triggerTasks;
-
+	// cron表达式定时任务
 	@Nullable
 	private List<CronTask> cronTasks;
-
+	// 固定速率任务
 	@Nullable
 	private List<IntervalTask> fixedRateTasks;
-
+	// 固定延迟任务
 	@Nullable
 	private List<IntervalTask> fixedDelayTasks;
-
+	// 未解析的Task
 	private final Map<Task, ScheduledTask> unresolvedTasks = new HashMap<>(16);
-
+	// 调度的任务
 	private final Set<ScheduledTask> scheduledTasks = new LinkedHashSet<>(16);
 
 
@@ -350,6 +353,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 根据基础任务调度程序调度所有已注册的任务。
 	 * Schedule all registered tasks against the underlying
 	 * {@linkplain #setTaskScheduler(TaskScheduler) task scheduler}.
 	 */
@@ -389,6 +393,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 
 
 	/**
+	 * 调度触发任务
 	 * Schedule the specified trigger task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it
@@ -398,14 +403,17 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	public ScheduledTask scheduleTriggerTask(TriggerTask task) {
 		ScheduledTask scheduledTask = this.unresolvedTasks.remove(task);
 		boolean newTask = false;
+		// 任务未被解析，则创建一个调度Task
 		if (scheduledTask == null) {
 			scheduledTask = new ScheduledTask(task);
 			newTask = true;
 		}
+		// 任务调度器不为空，则直接调度
 		if (this.taskScheduler != null) {
 			scheduledTask.future = this.taskScheduler.schedule(task.getRunnable(), task.getTrigger());
 		}
 		else {
+			// 任务调度器为空，则将任务添加到触发任务列表中
 			addTriggerTask(task);
 			this.unresolvedTasks.put(task, scheduledTask);
 		}
@@ -413,6 +421,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 调度cron任务
 	 * Schedule the specified cron task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it
@@ -438,6 +447,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 调度固定速率任务
 	 * Schedule the specified fixed-rate task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it
@@ -454,6 +464,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 调度固定速率任务
 	 * Schedule the specified fixed-rate task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it
@@ -487,6 +498,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 调度固定延迟任务
 	 * Schedule the specified fixed-delay task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it
@@ -503,6 +515,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	}
 
 	/**
+	 * 调度固定延迟任务
 	 * Schedule the specified fixed-delay task, either right away if possible
 	 * or on initialization of the scheduler.
 	 * @return a handle to the scheduled task, allowing to cancel it

@@ -39,6 +39,7 @@ public interface Expression {
 
 	/**
 	 * Evaluate this expression in the default standard context.
+	 * 在默认标准上下文中计算此表达式
 	 * @return the evaluation result
 	 * @throws EvaluationException if there is a problem during evaluation
 	 */

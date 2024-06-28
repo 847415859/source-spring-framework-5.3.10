@@ -326,7 +326,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// dependsOn表示当前beanName所依赖的，当前Bean创建之前dependsOn所依赖的Bean必须已经创建好了
 					for (String dep : dependsOn) {
 						// beanName是不是被dep依赖了，如果是则出现了循环依赖（避免出现 A在创建的时候依赖B，B在创建的时候依赖A）
-						// Tip: 由@DeopenOn引发的循环依赖问题Spring是无法解决的
+						// Tip: z
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");

@@ -70,6 +70,10 @@ public class AnnotationAsyncExecutionInterceptor extends AsyncExecutionIntercept
 	 * class level. If {@code @Async} is specified at both the method and class level, the
 	 * method's {@code #value} takes precedence (even if empty string, indicating that
 	 * the default executor should be used preferentially).
+	 * 返回执行给定方法时要使用的执行器的限定符或bean名称，
+	 * 通过方法或声明类级别的Async.value指定。如果在方法和类级别都指定了@Async，
+	 * 则方法的#值优先（即使是空字符串，也表示应优先使用默认执行器）。
+	 *
 	 * @param method the method to inspect for executor qualifier metadata
 	 * @return the qualifier if specified, otherwise empty string indicating that the
 	 * {@linkplain #setExecutor(Executor) default executor} should be used

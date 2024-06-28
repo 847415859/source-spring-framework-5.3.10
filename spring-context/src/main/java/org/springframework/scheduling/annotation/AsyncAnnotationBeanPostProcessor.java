@@ -68,6 +68,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 	 * The default name of the {@link TaskExecutor} bean to pick up: "taskExecutor".
 	 * <p>Note that the initial lookup happens by type; this is just the fallback
 	 * in case of multiple executor beans found in the context.
+	 * 要拾取的TaskExecutor bean的默认名称：“TaskExecutor”。
 	 * @since 4.2
 	 * @see AnnotationAsyncExecutionInterceptor#DEFAULT_TASK_EXECUTOR_BEAN_NAME
 	 */
@@ -77,12 +78,13 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	// 执行线程池
 	@Nullable
 	private Supplier<Executor> executor;
-
+	// 异常处理器
 	@Nullable
 	private Supplier<AsyncUncaughtExceptionHandler> exceptionHandler;
-
+	// 标识异步的注解
 	@Nullable
 	private Class<? extends Annotation> asyncAnnotationType;
 
@@ -140,6 +142,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
 		Assert.notNull(asyncAnnotationType, "'asyncAnnotationType' must not be null");
 		this.asyncAnnotationType = asyncAnnotationType;
 	}
+
 
 
 	@Override

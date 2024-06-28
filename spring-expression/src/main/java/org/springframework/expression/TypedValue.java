@@ -24,7 +24,7 @@ import org.springframework.util.ObjectUtils;
  * Encapsulates an object and a {@link TypeDescriptor} that describes it.
  * The type descriptor can contain generic declarations that would not
  * be accessible through a simple {@code getClass()} call on the object.
- *
+ * 封装对象和描述它的TypeDescriptor。类型描述符可以包含泛型声明，这些声明不能通过对对象的简单getClass（）调用来访问
  * @author Andy Clement
  * @author Juergen Hoeller
  * @since 3.0

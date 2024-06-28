@@ -20,7 +20,7 @@ package org.springframework.scheduling.config;
  * {@link Task} implementation defining a {@code Runnable} to be executed at a given
  * millisecond interval which may be treated as fixed-rate or fixed-delay depending on
  * context.
- *
+ * 任务实现定义了以给定毫秒间隔执行的Runnable，根据上下文，该间隔可以被视为固定速率或固定延迟。
  * @author Chris Beams
  * @since 3.2
  * @see ScheduledTaskRegistrar#addFixedRateTask(IntervalTask)

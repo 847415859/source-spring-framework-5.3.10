@@ -664,7 +664,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	 * proxy is not frozen.
 	 */
 	private static class DynamicAdvisedInterceptor implements MethodInterceptor, Serializable {
-
+		// 需要被增强的对象包装类
 		private final AdvisedSupport advised;
 
 		public DynamicAdvisedInterceptor(AdvisedSupport advised) {

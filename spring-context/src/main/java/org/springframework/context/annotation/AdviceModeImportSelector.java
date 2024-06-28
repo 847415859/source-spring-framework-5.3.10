@@ -42,6 +42,7 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 
 
 	/**
+	 * 由泛型类型A指定的注释的AdviceMode属性的名称。默认值为“mode”，但子类可以重写以进行自定义
 	 * The name of the {@link AdviceMode} attribute for the annotation specified by the
 	 * generic type {@code A}. The default is {@value #DEFAULT_ADVICE_MODE_ATTRIBUTE_NAME},
 	 * but subclasses may override in order to customize.
@@ -66,15 +67,16 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
 		Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
-
+		// 获取类上的注解
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
 		if (attributes == null) {
 			throw new IllegalArgumentException(String.format(
 					"@%s is not present on importing class '%s' as expected",
 					annType.getSimpleName(), importingClassMetadata.getClassName()));
 		}
-
+		// 获取注解的属性值
 		AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName());
+		// 获取导入的类
 		String[] imports = selectImports(adviceMode);
 		if (imports == null) {
 			throw new IllegalArgumentException("Unknown AdviceMode: " + adviceMode);

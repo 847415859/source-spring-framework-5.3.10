@@ -96,6 +96,7 @@ public interface TaskScheduler {
 	}
 
 	/**
+	 * 调度一个任务
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time.
 	 * <p>Execution will end once the scheduler shuts down or the returned
 	 * {@link ScheduledFuture} gets cancelled.
@@ -109,6 +110,7 @@ public interface TaskScheduler {
 	ScheduledFuture<?> schedule(Runnable task, Date startTime);
 
 	/**
+	 * 调度一个固定频率的任务
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time
 	 * and subsequently with the given period.
 	 * <p>Execution will end once the scheduler shuts down or the returned
@@ -128,6 +130,7 @@ public interface TaskScheduler {
 	}
 
 	/**
+	 * 调度一个固定频率的任务
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time
 	 * and subsequently with the given period.
 	 * <p>Execution will end once the scheduler shuts down or the returned
@@ -143,6 +146,7 @@ public interface TaskScheduler {
 	ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Date startTime, long period);
 
 	/**
+	 * 调度一个固定频率的任务
 	 * Schedule the given {@link Runnable}, starting as soon as possible and
 	 * invoking it with the given period.
 	 * <p>Execution will end once the scheduler shuts down or the returned
@@ -160,6 +164,7 @@ public interface TaskScheduler {
 	}
 
 	/**
+	 * 调度一个固定频率的任务
 	 * Schedule the given {@link Runnable}, starting as soon as possible and
 	 * invoking it with the given period.
 	 * <p>Execution will end once the scheduler shuts down or the returned
@@ -173,6 +178,8 @@ public interface TaskScheduler {
 	ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long period);
 
 	/**
+	 * 执行一个固定延迟的任务
+	 * 	 * 任务所需的第一次执行时间（如果这是过去的时间，则任务将立即执行，即尽快执行）
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time
 	 * and subsequently with the given delay between the completion of one execution
 	 * and the start of the next.
@@ -193,6 +200,8 @@ public interface TaskScheduler {
 	}
 
 	/**
+	 * 执行一个固定延迟的任务
+	 * 任务所需的第一次执行时间（如果这是过去的时间，则任务将立即执行，即尽快执行）
 	 * Schedule the given {@link Runnable}, invoking it at the specified execution time
 	 * and subsequently with the given delay between the completion of one execution
 	 * and the start of the next.
@@ -210,6 +219,7 @@ public interface TaskScheduler {
 	ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Date startTime, long delay);
 
 	/**
+	 * 执行一个固定延迟的任务
 	 * Schedule the given {@link Runnable}, starting as soon as possible and invoking it with
 	 * the given delay between the completion of one execution and the start of the next.
 	 * <p>Execution will end once the scheduler shuts down or the returned
@@ -227,6 +237,7 @@ public interface TaskScheduler {
 	}
 
 	/**
+	 * 调度一个固定延迟的任务
 	 * Schedule the given {@link Runnable}, starting as soon as possible and invoking it with
 	 * the given delay between the completion of one execution and the start of the next.
 	 * <p>Execution will end once the scheduler shuts down or the returned
