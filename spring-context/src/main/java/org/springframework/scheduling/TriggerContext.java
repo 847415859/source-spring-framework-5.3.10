@@ -41,6 +41,7 @@ public interface TriggerContext {
 	}
 
 	/**
+	 * 返回上一次计划执行的时间，null代表还没执行过
 	 * Return the last <i>scheduled</i> execution time of the task,
 	 * or {@code null} if not scheduled before.
 	 */
@@ -48,6 +49,7 @@ public interface TriggerContext {
 	Date lastScheduledExecutionTime();
 
 	/**
+	 * 上一次真正执行的时间
 	 * Return the last <i>actual</i> execution time of the task,
 	 * or {@code null} if not scheduled before.
 	 */
@@ -55,6 +57,7 @@ public interface TriggerContext {
 	Date lastActualExecutionTime();
 
 	/**
+	 * 上一次完成的时间
 	 * Return the last completion time of the task,
 	 * or {@code null} if not scheduled before.
 	 */

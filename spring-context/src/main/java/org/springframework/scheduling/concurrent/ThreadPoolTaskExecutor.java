@@ -84,14 +84,15 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
 
 	private final Object poolSizeMonitor = new Object();
 
+	// 核心线程数
 	private int corePoolSize = 1;
-
+	// 最大线程数
 	private int maxPoolSize = Integer.MAX_VALUE;
-
+	// 线程空闲时间
 	private int keepAliveSeconds = 60;
-
+	// 线程队列容量
 	private int queueCapacity = Integer.MAX_VALUE;
-
+	// 允许核心线程线程超时
 	private boolean allowCoreThreadTimeOut = false;
 
 	@Nullable
@@ -224,11 +225,12 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
 	 * but stores the actual {@link ThreadPoolExecutor} handle internally.
 	 * Do not override this method for replacing the executor, rather just for
 	 * decorating its {@code ExecutorService} handle or storing custom state.
+	 * 初始化线程池
 	 */
 	@Override
 	protected ExecutorService initializeExecutor(
 			ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
-
+		// 阻塞队列
 		BlockingQueue<Runnable> queue = createQueue(this.queueCapacity);
 
 		ThreadPoolExecutor executor;
@@ -256,7 +258,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
 		if (this.allowCoreThreadTimeOut) {
 			executor.allowCoreThreadTimeOut(true);
 		}
-
+		// 实现AsyncListenableTaskExecutor接口的方法实际委托的就是这个executor
 		this.threadPoolExecutor = executor;
 		return executor;
 	}

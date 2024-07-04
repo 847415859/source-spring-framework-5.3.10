@@ -52,18 +52,21 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 		implements AsyncListenableTaskExecutor, Serializable {
 
 	/**
+	 * 无限并发
 	 * Permit any number of concurrent invocations: that is, don't throttle concurrency.
 	 * @see ConcurrencyThrottleSupport#UNBOUNDED_CONCURRENCY
 	 */
 	public static final int UNBOUNDED_CONCURRENCY = ConcurrencyThrottleSupport.UNBOUNDED_CONCURRENCY;
 
 	/**
+	 * 无并发
 	 * Switch concurrency 'off': that is, don't allow any concurrent invocations.
 	 * @see ConcurrencyThrottleSupport#NO_CONCURRENCY
 	 */
 	public static final int NO_CONCURRENCY = ConcurrencyThrottleSupport.NO_CONCURRENCY;
 
 
+	// 用于限流
 	/** Internal concurrency throttle used by this executor. */
 	private final ConcurrencyThrottleAdapter concurrencyThrottle = new ConcurrencyThrottleAdapter();
 
@@ -82,6 +85,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	}
 
 	/**
+	 * 设置线程名前缀
 	 * Create a new SimpleAsyncTaskExecutor with the given thread name prefix.
 	 * @param threadNamePrefix the prefix to use for the names of newly created threads
 	 */
@@ -90,6 +94,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	}
 
 	/**
+	 * 指定要使用外部工厂用于创建新线程
 	 * Create a new SimpleAsyncTaskExecutor with the given external thread factory.
 	 * @param threadFactory the factory to use for creating new Threads
 	 */
@@ -119,6 +124,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	}
 
 	/**
+	 * 主要用于设置一些任务的执行上下文调用,或提供一些监控/统计任务执行
 	 * Specify a custom {@link TaskDecorator} to be applied to any {@link Runnable}
 	 * about to be executed.
 	 * <p>Note that such a decorator is not necessarily being applied to the
@@ -145,6 +151,9 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	 * NOTE: Do not switch between -1 and any concrete limit at runtime,
 	 * as this will lead to inconsistent concurrency counts: A limit
 	 * of -1 effectively turns off concurrency counting completely.
+	 *
+	 *  设置最大并发数。-1表示没有并发限制。原则上,这个限制可以在运行时改变,尽管它通常被设计成一个配置。
+	 *  注意:不要切换-1和任何具体并发限制在运行时,这将导致不一致的并发数:-1有效的限制完全关闭的并发数。
 	 * @see #UNBOUNDED_CONCURRENCY
 	 */
 	public void setConcurrencyLimit(int concurrencyLimit) {
@@ -152,6 +161,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	}
 
 	/**
+	 * 允许的最大并发数
 	 * Return the maximum number of parallel accesses allowed.
 	 */
 	public final int getConcurrencyLimit() {
@@ -159,6 +169,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 	}
 
 	/**
+	 * 是否开启了限流功能，concurrencyLimit>0返回true
 	 * Return whether this throttle is currently active.
 	 * @return {@code true} if the concurrency limit for this instance is active
 	 * @see #getConcurrencyLimit()

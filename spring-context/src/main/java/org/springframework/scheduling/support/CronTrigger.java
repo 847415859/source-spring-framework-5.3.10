@@ -37,8 +37,9 @@ import org.springframework.util.Assert;
  */
 public class CronTrigger implements Trigger {
 
+	// Corn 表达式解析
 	private final CronExpression expression;
-
+	// 时区
 	private final ZoneId zoneId;
 
 
@@ -87,6 +88,7 @@ public class CronTrigger implements Trigger {
 
 
 	/**
+	 * 根据给定的触发器上下文确定下一次执行时间。
 	 * Determine the next execution time according to the given trigger context.
 	 * <p>Next execution times are calculated based on the
 	 * {@linkplain TriggerContext#lastCompletionTime completion time} of the
@@ -94,13 +96,14 @@ public class CronTrigger implements Trigger {
 	 */
 	@Override
 	public Date nextExecutionTime(TriggerContext triggerContext) {
+		// 获取上一次执行完成时间
 		Date date = triggerContext.lastCompletionTime();
 		if (date != null) {
+			// 获取上一次执行时间
 			Date scheduled = triggerContext.lastScheduledExecutionTime();
 			if (scheduled != null && date.before(scheduled)) {
-				// Previous task apparently executed too early...
-				// Let's simply use the last calculated execution time then,
-				// in order to prevent accidental re-fires in the same second.
+				// 之前的任务显然执行得太早
+				// 那么，让我们简单地使用上次计算的执行时间，以防止在同一秒内意外重新启动。
 				date = scheduled;
 			}
 		}
@@ -108,6 +111,7 @@ public class CronTrigger implements Trigger {
 			date = new Date();
 		}
 		ZonedDateTime dateTime = ZonedDateTime.ofInstant(date.toInstant(), this.zoneId);
+		// 获取下一次执行时间
 		ZonedDateTime next = this.expression.next(dateTime);
 		return next != null ? Date.from(next.toInstant()) : null;
 	}

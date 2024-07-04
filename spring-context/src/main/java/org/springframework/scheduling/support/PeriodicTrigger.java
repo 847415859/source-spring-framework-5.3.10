@@ -46,12 +46,13 @@ import org.springframework.util.Assert;
  */
 public class PeriodicTrigger implements Trigger {
 
+	// 周期
 	private final long period;
-
+	// 时间单位
 	private final TimeUnit timeUnit;
-
+	// 初始延迟
 	private volatile long initialDelay;
-
+	// 固定速率
 	private volatile boolean fixedRate;
 
 
@@ -127,18 +128,22 @@ public class PeriodicTrigger implements Trigger {
 
 
 	/**
+	 * 获取下一次执行的时间
 	 * Returns the time after which a task should run again.
 	 */
 	@Override
 	public Date nextExecutionTime(TriggerContext triggerContext) {
 		Date lastExecution = triggerContext.lastScheduledExecutionTime();
 		Date lastCompletion = triggerContext.lastCompletionTime();
+		// 如果之前没执行过，执行当前时间+初始延迟
 		if (lastExecution == null || lastCompletion == null) {
 			return new Date(triggerContext.getClock().millis() + this.initialDelay);
 		}
+		// 固定的频率 上次的执行时间+频率
 		if (this.fixedRate) {
 			return new Date(lastExecution.getTime() + this.period);
 		}
+		// 上次的完成时间+频率
 		return new Date(lastCompletion.getTime() + this.period);
 	}
 

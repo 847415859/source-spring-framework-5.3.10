@@ -55,6 +55,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
 
 	private boolean threadNamePrefixSet = false;
 
+	// 拒绝策略
 	private RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.AbortPolicy();
 
 	private boolean waitForTasksToCompleteOnShutdown = false;

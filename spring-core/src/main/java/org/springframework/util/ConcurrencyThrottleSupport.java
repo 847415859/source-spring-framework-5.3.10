@@ -47,11 +47,13 @@ import org.apache.commons.logging.LogFactory;
 public abstract class ConcurrencyThrottleSupport implements Serializable {
 
 	/**
+	 * 允许任意数量的并发调用：也就是说，不要限制并发（-1）。
 	 * Permit any number of concurrent invocations: that is, don't throttle concurrency.
 	 */
 	public static final int UNBOUNDED_CONCURRENCY = -1;
 
 	/**
+	 * 关闭并发：也就是说，不允许任何并发调用
 	 * Switch concurrency 'off': that is, don't allow any concurrent invocations.
 	 */
 	public static final int NO_CONCURRENCY = 0;
@@ -98,20 +100,25 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
 
 
 	/**
+	 * 任务执行前，调用该方法，进行并发控制。
 	 * To be invoked before the main execution logic of concrete subclasses.
 	 * <p>This implementation applies the concurrency throttle.
 	 * @see #afterAccess()
 	 */
 	protected void beforeAccess() {
+		// 无并发的情况不需要限流
 		if (this.concurrencyLimit == NO_CONCURRENCY) {
 			throw new IllegalStateException(
 					"Currently no invocations allowed - concurrency limit set to NO_CONCURRENCY");
 		}
+		// 正数代表设置了并发度，需要限流
 		if (this.concurrencyLimit > 0) {
 			boolean debug = logger.isDebugEnabled();
 			synchronized (this.monitor) {
 				boolean interrupted = false;
+				// 如果当前并发度大于等于并发限制则阻塞等待，直到afterAccess()方法执行唤醒
 				while (this.concurrencyCount >= this.concurrencyLimit) {
+					// 线程被中断，抛出异常
 					if (interrupted) {
 						throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
 								"but concurrency limit still does not allow for entering");
@@ -121,6 +128,7 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
 								" has reached limit " + this.concurrencyLimit + " - blocking");
 					}
 					try {
+						// 等待，直到afterAccess()方法执行唤醒
 						this.monitor.wait();
 					}
 					catch (InterruptedException ex) {
@@ -132,22 +140,26 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
 				if (debug) {
 					logger.debug("Entering throttle at concurrency count " + this.concurrencyCount);
 				}
+				// 执行一个任务将当前并发度加1
 				this.concurrencyCount++;
 			}
 		}
 	}
 
 	/**
+	 * 任务执行后，调用该方法
 	 * To be invoked after the main execution logic of concrete subclasses.
 	 * @see #beforeAccess()
 	 */
 	protected void afterAccess() {
 		if (this.concurrencyLimit >= 0) {
 			synchronized (this.monitor) {
+				// 执行完任务将当前并发度减1
 				this.concurrencyCount--;
 				if (logger.isDebugEnabled()) {
 					logger.debug("Returning from throttle at concurrency count " + this.concurrencyCount);
 				}
+				// 唤醒等待的线程
 				this.monitor.notify();
 			}
 		}
