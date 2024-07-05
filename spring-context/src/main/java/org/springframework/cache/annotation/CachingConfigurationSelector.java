@@ -79,6 +79,8 @@ public class CachingConfigurationSelector extends AdviceModeImportSelector<Enabl
 	}
 
 	/**
+	 * 如果将AdviceMode设置为AdviceModel，则返回要使用的导入。代理。
+	 * 如果可以的话，请注意添加必要的JSR-107导入。
 	 * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#PROXY}.
 	 * <p>Take care of adding the necessary JSR-107 import if it is available.
 	 */
@@ -86,6 +88,7 @@ public class CachingConfigurationSelector extends AdviceModeImportSelector<Enabl
 		List<String> result = new ArrayList<>(3);
 		result.add(AutoProxyRegistrar.class.getName());
 		result.add(ProxyCachingConfiguration.class.getName());
+		// javax.cache.Cache 和 ProxyJCacheConfiguration 都存在，则添加ProxyJCacheConfiguration
 		if (jsr107Present && jcacheImplPresent) {
 			result.add(PROXY_JCACHE_CONFIGURATION_CLASS);
 		}
@@ -93,6 +96,7 @@ public class CachingConfigurationSelector extends AdviceModeImportSelector<Enabl
 	}
 
 	/**
+	 * 果将AdviceMode设置为AdviceModel，则返回要使用的导入
 	 * Return the imports to use if the {@link AdviceMode} is set to {@link AdviceMode#ASPECTJ}.
 	 * <p>Take care of adding the necessary JSR-107 import if it is available.
 	 */

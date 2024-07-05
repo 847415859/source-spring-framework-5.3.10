@@ -33,6 +33,8 @@ import org.springframework.lang.Nullable;
 public interface CacheOperationSource {
 
 	/**
+	 * 确定给定类是否是此CacheOperationSource的元数据格式的缓存操作的候选类。
+	 * 如果此方法返回false
 	 * Determine whether the given class is a candidate for cache operations
 	 * in the metadata format of this {@code CacheOperationSource}.
 	 * <p>If this method returns {@code false}, the methods on the given class
@@ -51,6 +53,7 @@ public interface CacheOperationSource {
 	}
 
 	/**
+	 * 返回此方法的缓存操作集合，如果该方法不包含可缓存的注释
 	 * Return the collection of cache operations for this method,
 	 * or {@code null} if the method contains no <em>cacheable</em> annotations.
 	 * @param method the method to introspect

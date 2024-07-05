@@ -129,6 +129,8 @@ public @interface CacheEvict {
 	String condition() default "";
 
 	/**
+	 * 是否删除缓存中的所有条目。
+	 * 默认情况下，只删除关联键下的值。
 	 * Whether all the entries inside the cache(s) are removed.
 	 * <p>By default, only the value under the associated key is removed.
 	 * <p>Note that setting this parameter to {@code true} and specifying a
@@ -137,6 +139,9 @@ public @interface CacheEvict {
 	boolean allEntries() default false;
 
 	/**
+	 * 是否应在调用方法之前进行逐出。
+	 * 将此属性设置为true，将导致无论方法结果如何（即是否引发异常）都会发生逐出。
+	 * 默认为false，这意味着缓存驱逐操作将在建议的方法成功调用后发生
 	 * Whether the eviction should occur before the method is invoked.
 	 * <p>Setting this attribute to {@code true}, causes the eviction to
 	 * occur irrespective of the method outcome (i.e., whether it threw an

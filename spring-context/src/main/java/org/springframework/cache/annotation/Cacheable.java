@@ -59,12 +59,14 @@ import org.springframework.core.annotation.AliasFor;
 public @interface Cacheable {
 
 	/**
+	 * 缓存名称
 	 * Alias for {@link #cacheNames}.
 	 */
 	@AliasFor("cacheNames")
 	String[] value() default {};
 
 	/**
+	 * 缓存名称
 	 * Names of the caches in which method invocation results are stored.
 	 * <p>Names may be used to determine the target cache (or caches), matching
 	 * the qualifier value or bean name of a specific bean definition.
@@ -76,6 +78,7 @@ public @interface Cacheable {
 	String[] cacheNames() default {};
 
 	/**
+	 * 缓存key,会被SpringEL表达式解析
 	 * Spring Expression Language (SpEL) expression for computing the key dynamically.
 	 * <p>Default is {@code ""}, meaning all method parameters are considered as a key,
 	 * unless a custom {@link #keyGenerator} has been configured.
@@ -95,6 +98,8 @@ public @interface Cacheable {
 	String key() default "";
 
 	/**
+	 * 自定义org.springframework.cache.interceptor的bean名称。要使用的KeyGenerator。
+	 * 与key属性互斥。
 	 * The bean name of the custom {@link org.springframework.cache.interceptor.KeyGenerator}
 	 * to use.
 	 * <p>Mutually exclusive with the {@link #key} attribute.
@@ -103,6 +108,10 @@ public @interface Cacheable {
 	String keyGenerator() default "";
 
 	/**
+	 * 自定义org.springframework.cache的bean名称。用于创建默认org.springframework.cache.interceptor的CacheManager。
+	 * CacheResolver（如果尚未设置）。
+	 * 与cacheResolver属性互斥。
+	 *
 	 * The bean name of the custom {@link org.springframework.cache.CacheManager} to use to
 	 * create a default {@link org.springframework.cache.interceptor.CacheResolver} if none
 	 * is set already.
@@ -113,6 +122,7 @@ public @interface Cacheable {
 	String cacheManager() default "";
 
 	/**
+	 * 自定义org.springframework.cache.interceptor的bean名称。要使用的CacheResolver。
 	 * The bean name of the custom {@link org.springframework.cache.interceptor.CacheResolver}
 	 * to use.
 	 * @see CacheConfig#cacheResolver
@@ -120,6 +130,8 @@ public @interface Cacheable {
 	String cacheResolver() default "";
 
 	/**
+	 * 用于使方法缓存具有条件的Spring表达式语言（SpEL）表达式。
+	 * 默认值为“”，表示方法结果始终缓存
 	 * Spring Expression Language (SpEL) expression used for making the method
 	 * caching conditional.
 	 * <p>Default is {@code ""}, meaning the method result is always cached.
@@ -139,6 +151,10 @@ public @interface Cacheable {
 	String condition() default "";
 
 	/**
+	 * 用于否决方法缓存的Spring表达式语言（SpEL）表达式。
+	 * 与条件不同，此表达式是在调用方法后计算的，因此可以引用结果。
+	 * 默认值为“”，这意味着缓存永远不会被否决。
+	 *
 	 * Spring Expression Language (SpEL) expression used to veto method caching.
 	 * <p>Unlike {@link #condition}, this expression is evaluated after the method
 	 * has been called and can therefore refer to the {@code result}.
@@ -163,6 +179,10 @@ public @interface Cacheable {
 	String unless() default "";
 
 	/**
+	 * 如果多个线程试图加载同一个键的值，则同步底层方法的调用。同步会导致以下几个限制：
+	 *  - 不支持unless（）
+	 *  - 只能指定一个缓存
+	 *  - 不能组合其他与缓存相关的操作
 	 * Synchronize the invocation of the underlying method if several threads are
 	 * attempting to load a value for the same key. The synchronization leads to
 	 * a couple of limitations:

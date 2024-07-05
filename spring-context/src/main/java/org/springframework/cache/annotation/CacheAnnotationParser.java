@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
 public interface CacheAnnotationParser {
 
 	/**
+	 * 确定给定类是否是此CacheAnnotationParser的注释格式的缓存操作的候选类。
 	 * Determine whether the given class is a candidate for cache operations
 	 * in the annotation format of this {@code CacheAnnotationParser}.
 	 * <p>If this method returns {@code false}, the methods on the given class
@@ -56,10 +57,8 @@ public interface CacheAnnotationParser {
 	}
 
 	/**
-	 * Parse the cache definition for the given class,
-	 * based on an annotation type understood by this parser.
-	 * <p>This essentially parses a known cache annotation into Spring's metadata
-	 * attribute class. Returns {@code null} if the class is not cacheable.
+	 * 基于此解析器所理解的注释类型，解析给定类的缓存定义。
+	 * 这本质上是将一个已知的缓存注释解析到Spring的元数据属性类中。如果类不可缓存，则返回null。
 	 * @param type the annotated class
 	 * @return the configured caching operation, or {@code null} if none found
 	 * @see AnnotationCacheOperationSource#findCacheOperations(Class)
@@ -68,10 +67,8 @@ public interface CacheAnnotationParser {
 	Collection<CacheOperation> parseCacheAnnotations(Class<?> type);
 
 	/**
-	 * Parse the cache definition for the given method,
-	 * based on an annotation type understood by this parser.
-	 * <p>This essentially parses a known cache annotation into Spring's metadata
-	 * attribute class. Returns {@code null} if the method is not cacheable.
+	 * 基于此解析器所理解的注释类型，解析给定方法的缓存定义。
+	 * 这本质上是将一个已知的缓存注释解析到Spring的元数据属性类中。如果方法不可缓存，则返回null。
 	 * @param method the annotated method
 	 * @return the configured caching operation, or {@code null} if none found
 	 * @see AnnotationCacheOperationSource#findCacheOperations(Method)

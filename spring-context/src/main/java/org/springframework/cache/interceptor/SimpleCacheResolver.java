@@ -52,6 +52,7 @@ public class SimpleCacheResolver extends AbstractCacheResolver {
 
 	@Override
 	protected Collection<String> getCacheNames(CacheOperationInvocationContext<?> context) {
+		// //缓存注解的cacheNames属性
 		return context.getOperation().getCacheNames();
 	}
 

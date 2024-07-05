@@ -193,6 +193,7 @@ public interface Cache {
 	void clear();
 
 	/**
+	 * 通过删除所有映射使缓存无效，期望所有条目在后续查找中立即不可见。
 	 * Invalidate the cache through removing all mappings, expecting all
 	 * entries to be immediately invisible for subsequent lookups.
 	 * @return {@code true} if the cache was known to have mappings before,

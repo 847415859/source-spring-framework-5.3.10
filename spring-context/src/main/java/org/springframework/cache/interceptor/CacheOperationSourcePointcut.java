@@ -42,9 +42,16 @@ abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut 
 	}
 
 
+	/**
+	 * 方法匹配
+	 * @param method the candidate method
+	 * @param targetClass the target class
+	 * @return
+	 */
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
 		CacheOperationSource cas = getCacheOperationSource();
+		// 获取方法上的 Caching注解,如果不为空则表示匹配成功
 		return (cas != null && !CollectionUtils.isEmpty(cas.getCacheOperations(method, targetClass)));
 	}
 
@@ -72,6 +79,7 @@ abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut 
 
 
 	/**
+	 * 获取基础CacheOperationSource（可能为null）。由子类实现。
 	 * Obtain the underlying {@link CacheOperationSource} (may be {@code null}).
 	 * To be implemented by subclasses.
 	 */
@@ -87,9 +95,12 @@ abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut 
 
 		@Override
 		public boolean matches(Class<?> clazz) {
+			// 如果CacheManager的子类，则不进行匹配
 			if (CacheManager.class.isAssignableFrom(clazz)) {
 				return false;
 			}
+			// 获取CacheOperationSource,然后调用其isCandidateClass
+			// 默认就是判断  @Cacheable @CacheEvict, @CachePut, @Caching 注解
 			CacheOperationSource cas = getCacheOperationSource();
 			return (cas == null || cas.isCandidateClass(clazz));
 		}

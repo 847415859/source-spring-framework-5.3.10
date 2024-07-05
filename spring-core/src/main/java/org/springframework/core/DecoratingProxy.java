@@ -19,12 +19,15 @@ package org.springframework.core;
 /**
  * Interface to be implemented by decorating proxies, in particular Spring AOP
  * proxies but potentially also custom proxies with decorator semantics.
+ * 接口将通过装饰代理来实现，特别是Spring AOP代理，但也可能是具有装饰器语义的自定义代理。
  *
  * <p>Note that this interface should just be implemented if the decorated class
  * is not within the hierarchy of the proxy class to begin with. In particular,
  * a "target-class" proxy such as a Spring AOP CGLIB proxy should not implement
  * it since any lookup on the target class can simply be performed on the proxy
  * class there anyway.
+ * 请注意，如果装饰类一开始就不在代理类的层次结构中，那么就应该实现这个接口。
+ * 特别是，诸如Spring AOP CGLIB代理之类的“目标类”代理不应该实现它，因为对目标类的任何查找都可以简单地在那里的代理类上执行
  *
  * <p>Defined in the core module in order to allow
  * {@link org.springframework.core.annotation.AnnotationAwareOrderComparator}

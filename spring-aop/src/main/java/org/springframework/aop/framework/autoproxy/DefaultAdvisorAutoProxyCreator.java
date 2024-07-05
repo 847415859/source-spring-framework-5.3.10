@@ -93,6 +93,7 @@ public class DefaultAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCrea
 
 
 	/**
+	 * 如果已激活，则将具有指定前缀的Advisor bean视为合格。
 	 * Consider {@code Advisor} beans with the specified prefix as eligible, if activated.
 	 * @see #setUsePrefix
 	 * @see #setAdvisorBeanNamePrefix

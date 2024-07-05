@@ -43,7 +43,7 @@ public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public BeanFactoryCacheOperationSourceAdvisor cacheAdvisor(
 			CacheOperationSource cacheOperationSource, CacheInterceptor cacheInterceptor) {
-
+		// 创建一个 Advisor
 		BeanFactoryCacheOperationSourceAdvisor advisor = new BeanFactoryCacheOperationSourceAdvisor();
 		advisor.setCacheOperationSource(cacheOperationSource);
 		advisor.setAdvice(cacheInterceptor);
@@ -53,12 +53,14 @@ public class ProxyCachingConfiguration extends AbstractCachingConfiguration {
 		return advisor;
 	}
 
+	// 缓存操作源,用于判断哪些操作是缓存的操作 默认是 @Cacheable、@CacheEvict、@CachePut、@Caching 注解
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public CacheOperationSource cacheOperationSource() {
 		return new AnnotationCacheOperationSource();
 	}
 
+	// 缓存拦截器
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {

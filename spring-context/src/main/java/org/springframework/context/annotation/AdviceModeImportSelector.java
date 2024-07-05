@@ -52,6 +52,8 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	}
 
 	/**
+	 * 该实现从通用元数据解析注释的类型，并验证（a）注释实际上存在于导入的@Configuration类上，以及（b）给定的注释具有类型为AdviceMode的建议模式属性。
+	 * 然后调用selectImports（AdviceMode）方法，允许具体实现以安全方便的方式选择导入
 	 * This implementation resolves the type of annotation from generic metadata and
 	 * validates that (a) the annotation is in fact present on the importing
 	 * {@code @Configuration} class and (b) that the given annotation has an
@@ -85,6 +87,7 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 	}
 
 	/**
+	 * 根据给定的AdviceMode确定应导入哪些类。
 	 * Determine which classes should be imported based on the given {@code AdviceMode}.
 	 * <p>Returning {@code null} from this method indicates that the {@code AdviceMode}
 	 * could not be handled or was unknown and that an {@code IllegalArgumentException}

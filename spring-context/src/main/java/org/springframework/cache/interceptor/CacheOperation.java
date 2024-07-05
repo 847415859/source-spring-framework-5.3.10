@@ -33,20 +33,21 @@ import org.springframework.util.Assert;
  */
 public abstract class CacheOperation implements BasicOperation {
 
+	// 缓存名称
 	private final String name;
-
+	// 缓存名称集合
 	private final Set<String> cacheNames;
-
+	// 缓存key
 	private final String key;
-
+	// 缓存keyGenerator
 	private final String keyGenerator;
-
+	// 缓存管理器
 	private final String cacheManager;
-
+	// 缓存解析器
 	private final String cacheResolver;
-
+	// 条件
 	private final String condition;
-
+	// toString
 	private final String toString;
 
 

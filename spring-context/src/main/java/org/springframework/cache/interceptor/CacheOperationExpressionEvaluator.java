@@ -47,10 +47,12 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 
 	/**
 	 * Indicate that there is no result variable.
+	 * 指示没有结果变量。
 	 */
 	public static final Object NO_RESULT = new Object();
 
 	/**
+	 * 指示根本无法使用结果变量
 	 * Indicate that the result variable cannot be used at all.
 	 */
 	public static final Object RESULT_UNAVAILABLE = new Object();
@@ -60,23 +62,25 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 	 */
 	public static final String RESULT_VARIABLE = "result";
 
-
+	// key表达式解析的缓存
 	private final Map<ExpressionKey, Expression> keyCache = new ConcurrentHashMap<>(64);
-
+	// condition条件表达式解析的缓存
 	private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
-
+	// unless表达式解析的缓存
 	private final Map<ExpressionKey, Expression> unlessCache = new ConcurrentHashMap<>(64);
 
-
 	/**
+	 * 创建一个评估上下文 EvaluationContext
 	 * Create an {@link EvaluationContext}.
-	 * @param caches the current caches
-	 * @param method the method
-	 * @param args the method arguments
-	 * @param target the target object
-	 * @param targetClass the target class
+	 * @param caches the current caches			当前缓存集合
+	 * @param method the method					方法（执行的接口定义方法）
+	 * @param args the method arguments			方法参数
+	 * @param target the target object			目标对象
+	 * @param targetClass the target class		目标类
+	 * @param targetMethod the target method	目标方法
 	 * @param result the return value (can be {@code null}) or
-	 * {@link #NO_RESULT} if there is no return at this time
+	 * {@link #NO_RESULT} if there is no return at t his time
+	 * @param beanFactory                       Bean工厂
 	 * @return the evaluation context
 	 */
 	public EvaluationContext createEvaluationContext(Collection<? extends Cache> caches,
@@ -87,12 +91,15 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 				caches, method, args, target, targetClass);
 		CacheEvaluationContext evaluationContext = new CacheEvaluationContext(
 				rootObject, targetMethod, args, getParameterNameDiscoverer());
+		// 结果变量无法使用
 		if (result == RESULT_UNAVAILABLE) {
 			evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
 		}
+		// 结果变量不为空
 		else if (result != NO_RESULT) {
 			evaluationContext.setVariable(RESULT_VARIABLE, result);
 		}
+		// 设置Bean的解析，可以在 @bean名称 来获取Bean对象
 		if (beanFactory != null) {
 			evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
 		}

@@ -44,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 @Configuration(proxyBeanMethods = false)
 public abstract class AbstractCachingConfiguration implements ImportAware {
 
+	// 获取 EnableCaching 注解的属性值
 	@Nullable
 	protected AnnotationAttributes enableCaching;
 
@@ -60,8 +61,10 @@ public abstract class AbstractCachingConfiguration implements ImportAware {
 	protected Supplier<CacheErrorHandler> errorHandler;
 
 
+	// 在Bean的生命周期会调用
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		// 获取Bean上 EnableCaching 注解的属性值
 		this.enableCaching = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableCaching.class.getName(), false));
 		if (this.enableCaching == null) {
@@ -70,6 +73,7 @@ public abstract class AbstractCachingConfiguration implements ImportAware {
 		}
 	}
 
+	// 获取用户自定义的 缓存管理器
 	@Autowired(required = false)
 	void setConfigurers(Collection<CachingConfigurer> configurers) {
 		if (CollectionUtils.isEmpty(configurers)) {

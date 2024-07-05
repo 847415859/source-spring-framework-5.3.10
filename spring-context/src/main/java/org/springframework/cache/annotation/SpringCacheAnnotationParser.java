@@ -49,6 +49,7 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("serial")
 public class SpringCacheAnnotationParser implements CacheAnnotationParser, Serializable {
 
+	// 缓存注解集合
 	private static final Set<Class<? extends Annotation>> CACHE_OPERATION_ANNOTATIONS = new LinkedHashSet<>(8);
 
 	static {
@@ -74,15 +75,17 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 	@Override
 	@Nullable
 	public Collection<CacheOperation> parseCacheAnnotations(Method method) {
+		// 读取@CacheConfig的属性进行封装
 		DefaultCacheConfig defaultConfig = new DefaultCacheConfig(method.getDeclaringClass());
 		return parseCacheAnnotations(defaultConfig, method);
 	}
 
 	@Nullable
 	private Collection<CacheOperation> parseCacheAnnotations(DefaultCacheConfig cachingConfig, AnnotatedElement ae) {
+		// 首先在整个类的层次结构上查找
 		Collection<CacheOperation> ops = parseCacheAnnotations(cachingConfig, ae, false);
+		// 如果有超过一个则在被注解类上查找，找到就用否则还是用上面的ops，目的是为了做到如果子类覆盖父类以子类为准
 		if (ops != null && ops.size() > 1) {
-			// More than one operation found -> local declarations override interface-declared ones...
 			Collection<CacheOperation> localOps = parseCacheAnnotations(cachingConfig, ae, true);
 			if (localOps != null) {
 				return localOps;
@@ -94,14 +97,20 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 	@Nullable
 	private Collection<CacheOperation> parseCacheAnnotations(
 			DefaultCacheConfig cachingConfig, AnnotatedElement ae, boolean localOnly) {
-
+		// 仅限于搜索AnnotatedElement上存在的注解（即本地声明或继承）或在AnnotatedElement上方的注解层次结构中声明的注解
 		Collection<? extends Annotation> anns = (localOnly ?
 				AnnotatedElementUtils.getAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS) :
+				// 更加详尽，提供了语义加上对以下内容的支持：
+				// 如果带注解的元素是类，则在接口上搜索
+				// 如果带注解的元素是类，则在超类上搜索
+				// 解析桥接方法，如果带注解的元素是方法
+				// 如果带注解的元素是方法，则在接口中搜索方法
+				// 如果带注解的元素是方法，则在超类中搜索方法
 				AnnotatedElementUtils.findAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS));
 		if (anns.isEmpty()) {
 			return null;
 		}
-
+		// 分别对 @Cacheable、@CacheEvict、@CachePut、@Caching 注解进行解析
 		final Collection<CacheOperation> ops = new ArrayList<>(1);
 		anns.stream().filter(ann -> ann instanceof Cacheable).forEach(
 				ann -> ops.add(parseCacheableAnnotation(ae, cachingConfig, (Cacheable) ann)));
@@ -114,6 +123,7 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 		return ops;
 	}
 
+	// 解析 @Cacheable 注解
 	private CacheableOperation parseCacheableAnnotation(
 			AnnotatedElement ae, DefaultCacheConfig defaultConfig, Cacheable cacheable) {
 
@@ -136,6 +146,7 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 		return op;
 	}
 
+	// 解析 @CacheEvict 注解
 	private CacheEvictOperation parseEvictAnnotation(
 			AnnotatedElement ae, DefaultCacheConfig defaultConfig, CacheEvict cacheEvict) {
 
@@ -158,6 +169,7 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 		return op;
 	}
 
+	// 解析 @CachePut 注解
 	private CacheOperation parsePutAnnotation(
 			AnnotatedElement ae, DefaultCacheConfig defaultConfig, CachePut cachePut) {
 
@@ -179,6 +191,7 @@ public class SpringCacheAnnotationParser implements CacheAnnotationParser, Seria
 		return op;
 	}
 
+	// 解析 @Caching 注解
 	private void parseCachingAnnotation(
 			AnnotatedElement ae, DefaultCacheConfig defaultConfig, Caching caching, Collection<CacheOperation> ops) {
 

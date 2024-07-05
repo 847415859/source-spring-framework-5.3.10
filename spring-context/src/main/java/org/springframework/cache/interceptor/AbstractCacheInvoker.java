@@ -109,7 +109,7 @@ public abstract class AbstractCacheInvoker {
 		}
 	}
 
-	/**
+	/** 在指定的Cache上执行Cache.clear（），并在发生异常时调用错误处理程序。
 	 * Execute {@link Cache#clear()} on the specified {@link Cache} and
 	 * invoke the error handler if an exception occurs.
 	 */

@@ -33,7 +33,8 @@ import org.springframework.util.Assert;
 /**
  * Implementation of the {@link org.springframework.cache.interceptor.CacheOperationSource
  * CacheOperationSource} interface for working with caching metadata in annotation format.
- *
+ * CacheOperationSource接口的实现，用于以注释格式缓存元数据。
+ * 此类读取Spring的Cacheable、CachePut和CacheEvict注释，并向Spring的缓存基础结构公开相应的缓存操作定义。这个类也可以作为自定义CacheOperationSource的基类。
  * <p>This class reads Spring's {@link Cacheable}, {@link CachePut} and {@link CacheEvict}
  * annotations and exposes corresponding caching operation definition to Spring's cache
  * infrastructure. This class may also serve as base class for a custom
@@ -47,25 +48,23 @@ import org.springframework.util.Assert;
 @SuppressWarnings("serial")
 public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperationSource implements Serializable {
 
+	// 公共方法
 	private final boolean publicMethodsOnly;
 
+	// 缓存注解解析器
 	private final Set<CacheAnnotationParser> annotationParsers;
 
 
 	/**
-	 * Create a default AnnotationCacheOperationSource, supporting public methods
-	 * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
+	 * 创建默认的AnnotationCacheOperationSource，支持携带@Cacheable和@CacheEvict注释的公共方法。
 	 */
 	public AnnotationCacheOperationSource() {
 		this(true);
 	}
 
 	/**
-	 * Create a default {@code AnnotationCacheOperationSource}, supporting public methods
-	 * that carry the {@code Cacheable} and {@code CacheEvict} annotations.
-	 * @param publicMethodsOnly whether to support only annotated public methods
-	 * typically for use with proxy-based AOP), or protected/private methods as well
-	 * (typically used with AspectJ class weaving)
+	 * 创建默认的AnnotationCacheOperationSource，支持携带@Cacheable和@CacheEvict注释的公共方法。
+	 * @param publicMethodsOnly 是仅支持通常用于基于代理的AOP的带注释的公共方法），还是也支持受保护/私有方法
 	 */
 	public AnnotationCacheOperationSource(boolean publicMethodsOnly) {
 		this.publicMethodsOnly = publicMethodsOnly;
@@ -73,7 +72,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 	}
 
 	/**
-	 * Create a custom AnnotationCacheOperationSource.
+	 * 创建自定义AnnotationCacheOperationSource。
 	 * @param annotationParser the CacheAnnotationParser to use
 	 */
 	public AnnotationCacheOperationSource(CacheAnnotationParser annotationParser) {
@@ -83,7 +82,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 	}
 
 	/**
-	 * Create a custom AnnotationCacheOperationSource.
+	 * 创建自定义AnnotationCacheOperationSource。
 	 * @param annotationParsers the CacheAnnotationParser to use
 	 */
 	public AnnotationCacheOperationSource(CacheAnnotationParser... annotationParsers) {
@@ -93,7 +92,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 	}
 
 	/**
-	 * Create a custom AnnotationCacheOperationSource.
+	 * 创建自定义AnnotationCacheOperationSource。
 	 * @param annotationParsers the CacheAnnotationParser to use
 	 */
 	public AnnotationCacheOperationSource(Set<CacheAnnotationParser> annotationParsers) {
@@ -103,6 +102,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 	}
 
 
+	// 判断是否是候选类
 	@Override
 	public boolean isCandidateClass(Class<?> targetClass) {
 		for (CacheAnnotationParser parser : this.annotationParsers) {
@@ -126,11 +126,8 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 	}
 
 	/**
-	 * Determine the cache operation(s) for the given {@link CacheOperationProvider}.
-	 * <p>This implementation delegates to configured
-	 * {@link CacheAnnotationParser CacheAnnotationParsers}
-	 * for parsing known annotations into Spring's metadata attribute class.
-	 * <p>Can be overridden to support custom annotations that carry caching metadata.
+	 * 确定给定AnnotationCacheOperationSource的缓存操作。CacheOperationProvider。
+	 * 此实现委托已配置的CacheAnnotationParsers将已知注释解析到Spring的元数据属性类中。
 	 * @param provider the cache operation provider to use
 	 * @return the configured caching operations, or {@code null} if none found
 	 */
@@ -183,8 +180,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
 
 
 	/**
-	 * Callback interface providing {@link CacheOperation} instance(s) based on
-	 * a given {@link CacheAnnotationParser}.
+	 * 提供基于给定CacheAnnotationParser的CacheOperation实例的回调接口
 	 */
 	@FunctionalInterface
 	protected interface CacheOperationProvider {

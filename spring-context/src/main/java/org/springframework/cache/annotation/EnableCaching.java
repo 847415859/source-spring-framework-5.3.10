@@ -173,6 +173,12 @@ import org.springframework.core.Ordered;
 public @interface EnableCaching {
 
 	/**
+	 * 指示是否要创建基于子类（CGLIB）的代理，而不是基于标准Java接口的代理。默认值为false。
+	 * 仅当mode（）设置为AdviceMode时才适用。代理。
+	 * 请注意，将该属性设置为true将影响所有需要代理的Spring托管bean，
+	 * 而不仅仅是那些标记为@Cacheable的bean。例如，其他标记有Spring的@Transactional注释的bean将同时升级为子类代理。
+	 * 这种方法在实践中没有负面影响，除非明确期望一种类型的代理与另一种类型，例如在测试中。
+	 *
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies. The default is {@code false}. <strong>
 	 * Applicable only if {@link #mode()} is set to {@link AdviceMode#PROXY}</strong>.
