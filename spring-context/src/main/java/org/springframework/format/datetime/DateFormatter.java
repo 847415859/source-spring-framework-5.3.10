@@ -120,6 +120,7 @@ public class DateFormatter implements Formatter<Date> {
 	}
 
 	/**
+	 * 设置其他模式，以在配置的模式、ISO格式、样式或样式模式解析失败时用作回退。
 	 * Set additional patterns to use as a fallback in case parsing fails for the
 	 * configured {@linkplain #setPattern pattern}, {@linkplain #setIso ISO format},
 	 * {@linkplain #setStyle style}, or {@linkplain #setStylePattern style pattern}.

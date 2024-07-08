@@ -120,45 +120,45 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * We'll create a lot of DataBinder instances: Let's use a static logger.
 	 */
 	protected static final Log logger = LogFactory.getLog(DataBinder.class);
-
+	// 需要数据绑定的对象
 	@Nullable
 	private final Object target;
-
+	// 给对象起得名字默认target
 	private final String objectName;
-
+	// 数据绑定后的结果
 	@Nullable
 	private AbstractPropertyBindingResult bindingResult;
 
 	private boolean directFieldAccess = false;
-
+	// 当target!=null时不会用到
 	@Nullable
 	private SimpleTypeConverter typeConverter;
-
+	// 忽略target不存在的属性，作用于PropertyAccessor的setPropertyValues()方法
 	private boolean ignoreUnknownFields = true;
-
+	// 忽略target不能访问的属性
 	private boolean ignoreInvalidFields = false;
-
+	// 当嵌套属性为空时，是否可以实例化该属性
 	private boolean autoGrowNestedPaths = true;
-
+	// 对于集合类型容量的最大值
 	private int autoGrowCollectionLimit = DEFAULT_AUTO_GROW_COLLECTION_LIMIT;
-
+	// 允许数据绑定的资源
 	@Nullable
 	private String[] allowedFields;
-
+	// 不允许的数据绑定的资源
 	@Nullable
 	private String[] disallowedFields;
-
+	// 数据绑定必须存在的字段
 	@Nullable
 	private String[] requiredFields;
-
+	// 为getPropertyAccessor().setConversionService(conversionService);
 	@Nullable
 	private ConversionService conversionService;
-
+	// 同bindingResult的
 	@Nullable
 	private MessageCodesResolver messageCodesResolver;
 
 	private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
-
+	// 自定义数据校验器
 	private final List<Validator> validators = new ArrayList<>();
 
 
@@ -742,8 +742,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	 * @see #applyPropertyValues
 	 */
 	protected void doBind(MutablePropertyValues mpvs) {
+		// 将不被允许的字段将移除
 		checkAllowedFields(mpvs);
+		// 检查必填字段
 		checkRequiredFields(mpvs);
+		// 绑定属性值
 		applyPropertyValues(mpvs);
 	}
 

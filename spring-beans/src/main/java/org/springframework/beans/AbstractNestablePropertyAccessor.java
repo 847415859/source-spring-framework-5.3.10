@@ -76,16 +76,20 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	 */
 	private static final Log logger = LogFactory.getLog(AbstractNestablePropertyAccessor.class);
 
+	// 自动增长集合的限制
 	private int autoGrowCollectionLimit = Integer.MAX_VALUE;
-
+	// 当前属性所代表的对象
 	@Nullable
 	Object wrappedObject;
 
+	// 当前属性所在父对象的路径
 	private String nestedPath = "";
 
+	// 父对象
 	@Nullable
 	Object rootObject;
 
+	// 当前对象的属性路径与该属性PropertyAccessor的映射缓存
 	/** Map with cached nested Accessors: nested path -> Accessor instance. */
 	@Nullable
 	private Map<String, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
@@ -236,6 +240,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	public void setPropertyValue(String propertyName, @Nullable Object value) throws BeansException {
 		AbstractNestablePropertyAccessor nestedPa;
 		try {
+			// 首先找到该propertyName对应的AbstractNestablePropertyAccessor；
 			nestedPa = getPropertyAccessorForPropertyPath(propertyName);
 		}
 		catch (NotReadablePropertyException ex) {
@@ -272,9 +277,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
 		if (tokens.keys != null) {
+			// 使用父类的typeConverterDelegate的convertIfNessary（）方法完成对数组，集合，Map的转换
 			processKeyedProperty(tokens, pv);
 		}
 		else {
+			// 普通java对象的转换
 			processLocalProperty(tokens, pv);
 		}
 	}

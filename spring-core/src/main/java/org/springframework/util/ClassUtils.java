@@ -523,6 +523,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * 如果给定类是基元类，则解析该类，返回相应的基元包装类型。
 	 * Resolve the given class if it is a primitive class,
 	 * returning the corresponding primitive wrapper type instead.
 	 * @param clazz the class to check

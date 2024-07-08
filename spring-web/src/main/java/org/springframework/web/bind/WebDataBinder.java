@@ -55,6 +55,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class WebDataBinder extends DataBinder {
 
 	/**
+	 * 字段标记参数以默认前缀开头，后跟字段名称：
+	 * 例如，字段“subscribeToNewsletter”的“_subscribeToNewswetter”。
+	 * 这样的标记参数表示该字段是可见的，即存在于导致提交的表单中。如果没有找到相应的字段值参数，则该字段将被重置。在
+	 * 这种情况下，字段标记参数的值无关紧要；可以使用任意的值。这对于HTML复选框和选择选项特别有用。
+	 *
 	 * Default prefix that field marker parameters start with, followed by the field
 	 * name: e.g. "_subscribeToNewsletter" for a field "subscribeToNewsletter".
 	 * <p>Such a marker parameter indicates that the field was visible, that is,
@@ -67,6 +72,9 @@ public class WebDataBinder extends DataBinder {
 	public static final String DEFAULT_FIELD_MARKER_PREFIX = "_";
 
 	/**
+	 * 字段默认参数开头的默认前缀，后跟字段名称：例如，字段“subscribeToNewsletter”的“！subscribeTo时事通讯”。
+	 * 默认参数与字段标记的不同之处在于，它们提供默认值而不是空值。
+	 *
 	 * Default prefix that field default parameters start with, followed by the field
 	 * name: e.g. "!subscribeToNewsletter" for a field "subscribeToNewsletter".
 	 * <p>Default parameters differ from field markers in that they provide a default
@@ -199,6 +207,8 @@ public class WebDataBinder extends DataBinder {
 	}
 
 	/**
+	 * 检查给定属性的字段默认值，即对于以字段默认前缀开头的字段。
+	 * 字段默认值的存在表示如果该字段不存在则应使用指定的默认值。
 	 * Check the given property values for field defaults,
 	 * i.e. for fields that start with the field default prefix.
 	 * <p>The existence of a field defaults indicates that the specified
@@ -223,6 +233,8 @@ public class WebDataBinder extends DataBinder {
 	}
 
 	/**
+	 * 检查字段标记的给定属性值，即对于以字段标记前缀开头的字段。
+	 * 字段标记的存在表明指定的字段存在于表单中。 如果属性值不包含相应的字段值，则该字段将被视为空，并将被适当地重置。
 	 * Check the given property values for field markers,
 	 * i.e. for fields that start with the field marker prefix.
 	 * <p>The existence of a field marker indicates that the specified

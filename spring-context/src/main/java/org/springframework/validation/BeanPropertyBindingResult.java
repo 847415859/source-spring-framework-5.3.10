@@ -45,9 +45,9 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
 
 	@Nullable
 	private final Object target;
-
+	// 是否“自动创建”包含空值的嵌套路径的实例
 	private final boolean autoGrowNestedPaths;
-
+	// 自动增长数组和集合的限制
 	private final int autoGrowCollectionLimit;
 
 	@Nullable

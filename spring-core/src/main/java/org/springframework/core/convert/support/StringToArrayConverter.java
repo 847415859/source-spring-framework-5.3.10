@@ -63,6 +63,7 @@ final class StringToArrayConverter implements ConditionalGenericConverter {
 			return null;
 		}
 		String string = (String) source;
+		// 字符串以 , 分割
 		String[] fields = StringUtils.commaDelimitedListToStringArray(string);
 		TypeDescriptor targetElementType = targetType.getElementTypeDescriptor();
 		Assert.state(targetElementType != null, "No target element type");

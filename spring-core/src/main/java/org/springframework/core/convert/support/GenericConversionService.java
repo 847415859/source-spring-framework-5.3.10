@@ -74,9 +74,10 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 */
 	private static final GenericConverter NO_MATCH = new NoOpConverter("NO_MATCH");
 
-
+	// 转化器
 	private final Converters converters = new Converters();
 
+	// 转化器匹配缓存
 	private final Map<ConverterCacheKey, GenericConverter> converterCache = new ConcurrentReferenceHashMap<>(64);
 
 
@@ -252,6 +253,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 */
 	@Nullable
 	protected GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		// 创建一个转化器的缓存key，先从缓存中获取，如果缓存中没有，则进行查找
 		ConverterCacheKey key = new ConverterCacheKey(sourceType, targetType);
 		GenericConverter converter = this.converterCache.get(key);
 		if (converter != null) {
@@ -260,6 +262,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 		converter = this.converters.find(sourceType, targetType);
 		if (converter == null) {
+			// 如果没有找到，则使用默认的转换器
 			converter = getDefaultConverter(sourceType, targetType);
 		}
 
@@ -267,7 +270,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 			this.converterCache.put(key, converter);
 			return converter;
 		}
-
+		// 没有匹配到
 		this.converterCache.put(key, NO_MATCH);
 		return null;
 	}
@@ -536,7 +539,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 		 */
 		@Nullable
 		public GenericConverter find(TypeDescriptor sourceType, TypeDescriptor targetType) {
-			// Search the full type hierarchy
+			// 搜索完整的类型层次结构
 			List<Class<?>> sourceCandidates = getClassHierarchy(sourceType.getType());
 			List<Class<?>> targetCandidates = getClassHierarchy(targetType.getType());
 			for (Class<?> sourceCandidate : sourceCandidates) {
@@ -573,6 +576,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 		}
 
 		/**
+		 * 返回给定类型的有序类层次结构
 		 * Returns an ordered class hierarchy for the given type.
 		 * @param type the type
 		 * @return an ordered list of all classes that the given type extends or implements
@@ -586,22 +590,27 @@ public class GenericConversionService implements ConfigurableConversionService {
 			int i = 0;
 			while (i < hierarchy.size()) {
 				Class<?> candidate = hierarchy.get(i);
+				// 如果是数组类型，则将数组类型转换为元素类型List<String> -> String,  然后基础数据类型类
 				candidate = (array ? candidate.getComponentType() : ClassUtils.resolvePrimitiveIfNecessary(candidate));
+				// 获取类的父类
 				Class<?> superclass = candidate.getSuperclass();
+				// 父类不为空，且不是Object类和 Enum类，则添加到列表中， 继续遍历
 				if (superclass != null && superclass != Object.class && superclass != Enum.class) {
 					addToClassHierarchy(i + 1, candidate.getSuperclass(), array, hierarchy, visited);
 				}
+				// 在遍历父类之后，获取当前类的接口，添加到列表中
 				addInterfacesToClassHierarchy(candidate, array, hierarchy, visited);
 				i++;
 			}
-
+			// 当前的类型为Enum的子类，则添加Enum类
 			if (Enum.class.isAssignableFrom(type)) {
 				addToClassHierarchy(hierarchy.size(), Enum.class, array, hierarchy, visited);
 				addToClassHierarchy(hierarchy.size(), Enum.class, false, hierarchy, visited);
 				addInterfacesToClassHierarchy(Enum.class, array, hierarchy, visited);
 			}
-
+			// 添加Object类
 			addToClassHierarchy(hierarchy.size(), Object.class, array, hierarchy, visited);
+			// 添加Object类，但是不是数组类型
 			addToClassHierarchy(hierarchy.size(), Object.class, false, hierarchy, visited);
 			return hierarchy;
 		}

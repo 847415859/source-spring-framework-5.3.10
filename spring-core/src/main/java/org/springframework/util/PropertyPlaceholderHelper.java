@@ -103,6 +103,7 @@ public class PropertyPlaceholderHelper {
 
 
 	/**
+	 * 将格式为$｛name｝的所有占位符替换为提供的Properties中的相应属性
 	 * Replaces all placeholders of format {@code ${name}} with the corresponding
 	 * property from the supplied {@link Properties}.
 	 * @param value the value containing the placeholders to be replaced
@@ -115,6 +116,7 @@ public class PropertyPlaceholderHelper {
 	}
 
 	/**
+	 * 将格式为$｛name｝的所有占位符替换为从提供的PropertyPlaceholderHelper返回的值。占位符解析程序
 	 * Replaces all placeholders of format {@code ${name}} with the value returned
 	 * from the supplied {@link PlaceholderResolver}.
 	 * @param value the value containing the placeholders to be replaced
@@ -135,7 +137,8 @@ public class PropertyPlaceholderHelper {
 		}
 
 		StringBuilder result = new StringBuilder(value);
-		while (startIndex != -1) { //获取结束的索引
+		while (startIndex != -1) {
+			//获取结束的索引
 			int endIndex = findPlaceholderEndIndex(result, startIndex);
 			if (endIndex != -1) {
 				// 去除占位符符号  ${java} => java

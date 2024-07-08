@@ -100,23 +100,24 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	 */
 	private static final boolean shouldIgnoreXml = SpringProperties.getFlag("spring.xml.ignore");
 
-
+	// 可以注入，通过getConversionService()方法获取。
 	@Nullable
 	private ConversionService conversionService;
 
+	// 为true，getDefaultEditor()方法才会注册默认提供的属性编辑器。
 	private boolean defaultEditorsActive = false;
-
+	// 为true会为String[].class，short[].class，int[].class，long[].class注册一个StringArrayPropertyEditor
 	private boolean configValueEditorsActive = false;
-
+	// 默认属性编辑器的容器
 	@Nullable
 	private Map<Class<?>, PropertyEditor> defaultEditors;
-
+	// 用于覆盖默认属性编辑器
 	@Nullable
 	private Map<Class<?>, PropertyEditor> overriddenDefaultEditors;
-
+	// 自定义属性编辑器
 	@Nullable
 	private Map<Class<?>, PropertyEditor> customEditors;
-
+	// 带path的
 	@Nullable
 	private Map<String, CustomEditorHolder> customEditorsForPath;
 

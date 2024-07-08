@@ -377,8 +377,10 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 	 */
 	protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
 		for (Annotation ann : parameter.getParameterAnnotations()) {
+			// 检查@javax.validation.Valid，Spring的@Validated以及名称以“Valid”开头的自定义注释。
 			Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
 			if (validationHints != null) {
+				// 这里使用DataBinder完成属性校验
 				binder.validate(validationHints);
 				break;
 			}

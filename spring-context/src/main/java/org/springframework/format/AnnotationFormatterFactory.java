@@ -33,6 +33,7 @@ import java.util.Set;
 public interface AnnotationFormatterFactory<A extends Annotation> {
 
 	/**
+	 * 可以使用<A>注释进行注释的字段类型。
 	 * The types of fields that may be annotated with the &lt;A&gt; annotation.
 	 */
 	Set<Class<?>> getFieldTypes();

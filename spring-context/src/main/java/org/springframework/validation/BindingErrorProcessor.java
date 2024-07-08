@@ -42,6 +42,8 @@ import org.springframework.beans.PropertyAccessException;
 public interface BindingErrorProcessor {
 
 	/**
+	 * 将缺少的字段错误应用于给定的BindException。
+	 * 通常，会为缺少的必填字段创建字段错误。
 	 * Apply the missing field error to the given BindException.
 	 * <p>Usually, a field error is created for a missing required field.
 	 * @param missingField the field that was missing during binding
@@ -55,6 +57,8 @@ public interface BindingErrorProcessor {
 	void processMissingFieldError(String missingField, BindingResult bindingResult);
 
 	/**
+	 * 将给定的PropertyAccessException转换为在给定Errors实例上注册的适当错误。
+	 * 请注意，有两种错误类型可用：FieldError和ObjectError。通常，会创建字段错误，但在某些情况下，可能需要创建全局ObjectError。
 	 * Translate the given {@code PropertyAccessException} to an appropriate
 	 * error registered on the given {@code Errors} instance.
 	 * <p>Note that two error types are available: {@code FieldError} and

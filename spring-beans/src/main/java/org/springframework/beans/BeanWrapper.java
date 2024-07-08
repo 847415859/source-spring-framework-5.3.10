@@ -49,6 +49,7 @@ import java.beans.PropertyDescriptor;
 public interface BeanWrapper extends ConfigurablePropertyAccessor {
 
 	/**
+	 * 指定阵列和集合自动增长的限制
 	 * Specify a limit for array and collection auto-growing.
 	 * <p>Default is unlimited on a plain BeanWrapper.
 	 * @since 4.1
@@ -56,24 +57,28 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
 	void setAutoGrowCollectionLimit(int autoGrowCollectionLimit);
 
 	/**
+	 * 返回数组和集合自动增长的限制。
 	 * Return the limit for array and collection auto-growing.
 	 * @since 4.1
 	 */
 	int getAutoGrowCollectionLimit();
 
 	/**
+	 * 返回由该对象包装的bean实例。
 	 * Return the bean instance wrapped by this object.
 	 */
 	Object getWrappedInstance();
 
 	/**
 	 * Return the type of the wrapped bean instance.
+	 * 返回封装的bean实例的类型。
 	 */
 	Class<?> getWrappedClass();
 
 	/**
 	 * Obtain the PropertyDescriptors for the wrapped object
 	 * (as determined by standard JavaBeans introspection).
+	 * 获取包装对象的PropertyDescriptors（由标准JavaBeans内省确定）。
 	 * @return the PropertyDescriptors for the wrapped object
 	 */
 	PropertyDescriptor[] getPropertyDescriptors();
@@ -81,6 +86,7 @@ public interface BeanWrapper extends ConfigurablePropertyAccessor {
 	/**
 	 * Obtain the property descriptor for a specific property
 	 * of the wrapped object.
+	 * 获取包装对象的特定属性的属性描述符。
 	 * @param propertyName the property to obtain the descriptor for
 	 * (may be a nested path, but no indexed/mapped property)
 	 * @return the property descriptor for the specified property

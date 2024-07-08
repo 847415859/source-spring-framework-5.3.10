@@ -38,7 +38,7 @@ import org.springframework.util.ObjectUtils;
 /**
  * Contextual descriptor about a type to convert from or to.
  * Capable of representing arrays and generic collection types.
- *
+ * 关于要从或转换为的类型的上下文描述符。能够表示数组和泛型集合类型。
  * @author Keith Donald
  * @author Andy Clement
  * @author Juergen Hoeller

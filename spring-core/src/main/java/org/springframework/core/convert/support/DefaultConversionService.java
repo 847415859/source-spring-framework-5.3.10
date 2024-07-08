@@ -80,7 +80,6 @@ public class DefaultConversionService extends GenericConversionService {
 
 	/**
 	 * 添加适合大多数环境的转换器。
-	 *
 	 * Add converters appropriate for most environments.
 	 * @param converterRegistry the registry of converters to add to
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
@@ -102,7 +101,7 @@ public class DefaultConversionService extends GenericConversionService {
 	}
 
 	/**
-	 * Add common collection converters.
+	 * 添加公共集合转换器。
 	 * @param converterRegistry the registry of converters to add to
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService
@@ -133,6 +132,10 @@ public class DefaultConversionService extends GenericConversionService {
 		converterRegistry.addConverter(new StreamConverter(conversionService));
 	}
 
+	/**
+	 * 添加适合大多数环境的转换器
+	 * @param converterRegistry
+	 */
 	private static void addScalarConverters(ConverterRegistry converterRegistry) {
 		converterRegistry.addConverterFactory(new NumberToNumberConverterFactory());
 

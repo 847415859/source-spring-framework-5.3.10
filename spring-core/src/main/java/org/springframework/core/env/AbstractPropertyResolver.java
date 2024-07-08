@@ -52,6 +52,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 	@Nullable
 	private PropertyPlaceholderHelper strictHelper;
 
+	//  是否忽略占位符中不存在的数据源 false会抛出IllegalArgumentException
 	private boolean ignoreUnresolvableNestedPlaceholders = false;
 
 	private String placeholderPrefix = SystemPropertyUtils.PLACEHOLDER_PREFIX;

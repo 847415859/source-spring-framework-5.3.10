@@ -46,16 +46,17 @@ import org.springframework.util.StringUtils;
 @SuppressWarnings("serial")
 public abstract class AbstractBindingResult extends AbstractErrors implements BindingResult, Serializable {
 
+	// /为绑定对象起个名字，会作用于错误码和getModel()
 	private final String objectName;
-
+	// 错误码解析器，默认是DefaultMessageCodesResolver
 	private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
-
+	// 存储数据绑定校验出现的错误
 	private final List<ObjectError> errors = new ArrayList<>();
-
+	// 字段名与字段类型
 	private final Map<String, Class<?>> fieldTypes = new HashMap<>();
-
+	// 字段名与属性编辑器
 	private final Map<String, Object> fieldValues = new HashMap<>();
-
+	// 存储数据绑定不被允许的字段
 	private final Set<String> suppressedFields = new HashSet<>();
 
 
