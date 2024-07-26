@@ -43,17 +43,17 @@ import org.springframework.web.context.request.ServletWebRequest;
  * @since 3.2
  */
 public class StandardServletAsyncWebRequest extends ServletWebRequest implements AsyncWebRequest, AsyncListener {
-
+	// 超时时间
 	private Long timeout;
-
+	// 异步上下文
 	private AsyncContext asyncContext;
-
+	// 异步是否完成
 	private AtomicBoolean asyncCompleted = new AtomicBoolean();
-
+	// 异步超时处理器
 	private final List<Runnable> timeoutHandlers = new ArrayList<>();
-
+	// 异步异常处理器
 	private final List<Consumer<Throwable>> exceptionHandlers = new ArrayList<>();
-
+	// 异步完成处理器
 	private final List<Runnable> completionHandlers = new ArrayList<>();
 
 
@@ -115,10 +115,11 @@ public class StandardServletAsyncWebRequest extends ServletWebRequest implements
 				"or by adding \"<async-supported>true</async-supported>\" to servlet and " +
 				"filter declarations in web.xml.");
 		Assert.state(!isAsyncComplete(), "Async processing has already completed");
-
+		// 是否已经启动了
 		if (isAsyncStarted()) {
 			return;
 		}
+		// 启动异步任务
 		this.asyncContext = getRequest().startAsync(getRequest(), getResponse());
 		this.asyncContext.addListener(this);
 		if (this.timeout != null) {
@@ -155,6 +156,7 @@ public class StandardServletAsyncWebRequest extends ServletWebRequest implements
 	public void onComplete(AsyncEvent event) throws IOException {
 		this.completionHandlers.forEach(Runnable::run);
 		this.asyncContext = null;
+		// 设置异步执行完成
 		this.asyncCompleted.set(true);
 	}
 

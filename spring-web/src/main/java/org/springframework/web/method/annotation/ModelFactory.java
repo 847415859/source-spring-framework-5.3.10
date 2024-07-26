@@ -106,11 +106,14 @@ public final class ModelFactory {
 	 */
 	public void initModel(NativeWebRequest request, ModelAndViewContainer container, HandlerMethod handlerMethod)
 			throws Exception {
-
+		// 填充数据到 ModelAndViewContainer 容器中
+		// 1. 添加从 @SessionAttributes 中获取数据(从会话中检索“已知”属性，即在@SessionAttributes中按名称列出的属性或之前存储在模型中按类型匹配的属性。)
 		Map<String, ?> sessionAttributes = this.sessionAttributesHandler.retrieveAttributes(request);
 		container.mergeAttributes(sessionAttributes);
+		// 2. 添加从 @ModelAttribute 中获取数据
 		invokeModelAttributeMethods(request, container);
-
+		// 3. 如果方法参数中含有 @ModelAttribute ，如果这参数在 ModelAndViewContainer
+		// 容器中不存在，则早 SessionAttributes 寻找添加到容器中
 		for (String name : findSessionAttributeArguments(handlerMethod)) {
 			if (!container.containsAttribute(name)) {
 				Object value = this.sessionAttributesHandler.retrieveAttribute(request, name);
@@ -133,13 +136,16 @@ public final class ModelFactory {
 			InvocableHandlerMethod modelMethod = getNextModelMethod(container).getHandlerMethod();
 			ModelAttribute ann = modelMethod.getMethodAnnotation(ModelAttribute.class);
 			Assert.state(ann != null, "No ModelAttribute annotation");
+			// 判断容器中是否已经存在该属性
 			if (container.containsAttribute(ann.name())) {
+				// @ModelAttribute 注解的 bidding 属性为 false 时，表示不绑定该属性(默认为true)
 				if (!ann.binding()) {
+					// 添加到容器中，表示不绑定该属性
 					container.setBindingDisabled(ann.name());
 				}
 				continue;
 			}
-
+			// 调用标注了 @ModelAttribute 注解的方法，获取返回值
 			Object returnValue = modelMethod.invokeForRequest(request, container);
 			if (modelMethod.isVoid()) {
 				if (StringUtils.hasText(ann.value())) {
@@ -150,11 +156,13 @@ public final class ModelFactory {
 				}
 				continue;
 			}
-
+			// 获取返回值属性名称
 			String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
+			// 判断该属性是否不需要绑定
 			if (!ann.binding()) {
 				container.setBindingDisabled(returnValueName);
 			}
+			// 如果容器中不存在该属性，则添加到容器中
 			if (!container.containsAttribute(returnValueName)) {
 				container.addAttribute(returnValueName, returnValue);
 			}

@@ -44,6 +44,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 判断返回类型是否是WebAsyncTask
 		return WebAsyncTask.class.isAssignableFrom(returnType.getParameterType());
 	}
 
@@ -60,6 +61,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
 		if (this.beanFactory != null) {
 			webAsyncTask.setBeanFactory(this.beanFactory);
 		}
+		// 调用异步管理器执行任务
 		WebAsyncUtils.getAsyncManager(webRequest).startCallableProcessing(webAsyncTask, mavContainer);
 	}
 

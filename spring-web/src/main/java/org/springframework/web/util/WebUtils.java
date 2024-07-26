@@ -457,10 +457,12 @@ public abstract class WebUtils {
 	@Nullable
 	public static <T> T getNativeRequest(ServletRequest request, @Nullable Class<T> requiredType) {
 		if (requiredType != null) {
+			// 判断请求类型
 			if (requiredType.isInstance(request)) {
 				return (T) request;
 			}
 			else if (request instanceof ServletRequestWrapper) {
+				// 包装请求，获取被包装的请求，递归进行校验请求类型
 				return getNativeRequest(((ServletRequestWrapper) request).getRequest(), requiredType);
 			}
 		}

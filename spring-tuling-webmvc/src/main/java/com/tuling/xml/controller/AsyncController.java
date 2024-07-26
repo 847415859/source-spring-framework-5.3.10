@@ -45,13 +45,13 @@ public class AsyncController {
 
     @ResponseBody
     @GetMapping("/async2")
-    public WebAsyncTask<String> asyncTask() throws Exception {
-        System.out.println(Thread.currentThread().getName() + " 主线程start");
+    public WebAsyncTask<String> asyncTask(Integer sleepTime) throws Exception {
+        System.out.println(Thread.currentThread().getName() + " main Thread start");
 
         Callable<String> callable = () -> {
-            System.out.println(Thread.currentThread().getName() + " 子线程start");
-            TimeUnit.SECONDS.sleep(5); //模拟处理业务逻辑，话费了5秒钟
-            System.out.println(Thread.currentThread().getName() + " 子线程end");
+            System.out.println(Thread.currentThread().getName() + " sub Thread start");
+            TimeUnit.SECONDS.sleep(sleepTime); //模拟处理业务逻辑，话费了5秒钟
+            System.out.println(Thread.currentThread().getName() + " sub Thread end");
 
             return "hello world";
         };
@@ -60,16 +60,16 @@ public class AsyncController {
 
         WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(3000, callable);
         // 注意：onCompletion表示完成，不管你是否超时、是否抛出异常，这个函数都会执行的
-        webAsyncTask.onCompletion(() -> System.out.println("程序[正常执行]完成的回调"));
+        webAsyncTask.onCompletion(() -> System.out.println("process [nomal] completion callback"));
 
         // 由于我们设置了超时时间为3000ms，而业务处理是5s，所以会执行onTimeout这个回调函数。
         // 因此页面是会显示“程序[超时]的回调”这几个字。其执行的过程同Callback。
-        webAsyncTask.onTimeout(() -> "程序[超时]的回调");
+        webAsyncTask.onTimeout(() -> "process timeout");
         // 备注：这个是Spring5新增的
-        webAsyncTask.onError(() -> "程序[出现异常]的回调");
+        webAsyncTask.onError(() -> "process exception");
 
 
-        System.out.println(Thread.currentThread().getName() + " 主线程end");
+        System.out.println(Thread.currentThread().getName() + " main Thread end");
         return webAsyncTask;
     }
 

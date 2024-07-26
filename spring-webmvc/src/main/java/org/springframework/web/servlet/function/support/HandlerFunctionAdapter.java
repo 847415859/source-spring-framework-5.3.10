@@ -92,12 +92,12 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
 	public ModelAndView handle(HttpServletRequest servletRequest,
 			HttpServletResponse servletResponse,
 			Object handler) throws Exception {
-
+		// 获取Web异步管理器
 		WebAsyncManager asyncManager = getWebAsyncManager(servletRequest, servletResponse);
-
+		// 获取ServerRequest对象
 		ServerRequest serverRequest = getServerRequest(servletRequest);
 		ServerResponse serverResponse;
-
+		// 判断是否是异步请求
 		if (asyncManager.hasConcurrentResult()) {
 			serverResponse = handleAsync(asyncManager);
 		}
@@ -116,6 +116,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
 
 	private WebAsyncManager getWebAsyncManager(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 		AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(servletRequest, servletResponse);
+		// 设置超时时间
 		asyncWebRequest.setTimeout(this.asyncRequestTimeout);
 
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(servletRequest);
@@ -133,6 +134,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
 
 	@Nullable
 	private ServerResponse handleAsync(WebAsyncManager asyncManager) throws Exception {
+		// 获取同步结果
 		Object result = asyncManager.getConcurrentResult();
 		asyncManager.clearConcurrentResult();
 		LogFormatUtils.traceDebug(logger, traceOn -> {

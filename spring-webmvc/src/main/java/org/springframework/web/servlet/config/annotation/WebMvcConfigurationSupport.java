@@ -672,21 +672,26 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		adapter.setContentNegotiationManager(contentNegotiationManager);
 		adapter.setMessageConverters(getMessageConverters());
 		adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(conversionService, validator));
+		// 参数解析处理器
 		adapter.setCustomArgumentResolvers(getArgumentResolvers());
+		// 返回值解析处理器
 		adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
 
 		if (jackson2Present) {
 			adapter.setRequestBodyAdvice(Collections.singletonList(new JsonViewRequestBodyAdvice()));
 			adapter.setResponseBodyAdvice(Collections.singletonList(new JsonViewResponseBodyAdvice()));
 		}
-
+		// 获取AsyncSupportConfigurer 对象
 		AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
 		if (configurer.getTaskExecutor() != null) {
+			// 设置线程池
 			adapter.setTaskExecutor(configurer.getTaskExecutor());
 		}
 		if (configurer.getTimeout() != null) {
+			// 设置超时时间
 			adapter.setAsyncRequestTimeout(configurer.getTimeout());
 		}
+		// 设置拦截器
 		adapter.setCallableInterceptors(configurer.getCallableInterceptors());
 		adapter.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
 

@@ -1,11 +1,10 @@
 package com.tuling.xml.controller;
 
 import com.tuling.javaconfig.initbinder.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
@@ -27,7 +26,12 @@ public class RequestMappingController {
         return modelAndView;
     }
 
-    // localhost:8080/springmvc/mapping/ant1
+    @PostMapping("/uploadData")
+    public ResponseEntity uploadData(@RequestBody MultipartFile file) throws Exception {
+        System.out.println(file.getName());
+        System.out.println(file.getContentType());
+        return ResponseEntity.ok(file.getName());
+    }
 
     @RequestMapping(value="/mappin*")
     public String mapping02(){
@@ -52,13 +56,10 @@ public class RequestMappingController {
     }
 
     @ResponseBody
-    @RequestMapping("/updateUser2")
-    public User updateUser2(Integer id, String lastName) {
+    @RequestMapping("/updateUser2/{id}")
+    public User updateUser2(@PathVariable Integer id,@RequestParam String lastName) {
         User user=new User(id,lastName,null,null);
-
         return user;
     }
-
-
 
 }

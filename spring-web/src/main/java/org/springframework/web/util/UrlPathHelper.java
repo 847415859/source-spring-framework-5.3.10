@@ -237,6 +237,8 @@ public class UrlPathHelper {
 	}
 
 	/**
+	 * 返回给定请求的映射查找路径，如果适用，在当前servlet映射中，否则在web应用程序中。
+	 * 如果在RequestDispatcher include中调用，则检测包括请求URL。
 	 * Return the mapping lookup path for the given request, within the current
 	 * servlet mapping if applicable, else within the web application.
 	 * <p>Detects include request URL if called within a RequestDispatcher include.
@@ -246,12 +248,14 @@ public class UrlPathHelper {
 	 * @see #getPathWithinApplication
 	 */
 	public String getLookupPathForRequest(HttpServletRequest request) {
+		// 获取应用地址
 		String pathWithinApp = getPathWithinApplication(request);
-		// Always use full path within current servlet context?
+		// 如果开启路径全匹配  或者 是 servlet4版本，并且不是 /factory/* 的路径格式
+		// 直接返回请求地址
 		if (this.alwaysUseFullPath || skipServletPathDetermination(request)) {
 			return pathWithinApp;
 		}
-		// Else, use path within current servlet mapping if applicable
+		// 否则，如果适用，请使用当前servlet映射中的路径
 		String rest = getPathWithinServletMapping(request, pathWithinApp);
 		if (StringUtils.hasLength(rest)) {
 			return rest;
@@ -303,7 +307,9 @@ public class UrlPathHelper {
 	 * @see #getLookupPathForRequest
 	 */
 	protected String getPathWithinServletMapping(HttpServletRequest request, String pathWithinApp) {
+		// 获取应用地址
 		String servletPath = getServletPath(request);
+		// 将路径中的 // 替换成 /
 		String sanitizedPathWithinApp = getSanitizedPath(pathWithinApp);
 		String path;
 
@@ -350,8 +356,11 @@ public class UrlPathHelper {
 	 * @see #getLookupPathForRequest
 	 */
 	public String getPathWithinApplication(HttpServletRequest request) {
+		// 获取 contextPath	例如: /springmvc
 		String contextPath = getContextPath(request);
+		// 获取 requestUri	例如：/springmvc/request/updateUser2/1
 		String requestUri = getRequestUri(request);
+		// requestUri 减去 contextPath   /request/updateUser2/1
 		String path = getRemainingPath(requestUri, contextPath, true);
 		if (path != null) {
 			// Normal case: URI contains context path.
@@ -436,7 +445,6 @@ public class UrlPathHelper {
 		}
 		return decodeAndCleanUriString(request, uri);
 	}
-
 	/**
 	 * Return the context path for the given request, detecting an include request
 	 * URL if called within a RequestDispatcher include.
@@ -448,12 +456,15 @@ public class UrlPathHelper {
 	public String getContextPath(HttpServletRequest request) {
 		String contextPath = (String) request.getAttribute(WebUtils.INCLUDE_CONTEXT_PATH_ATTRIBUTE);
 		if (contextPath == null) {
+			// 获取请求的上下文路径
 			contextPath = request.getContextPath();
 		}
+		// 如果上下文路径为 “/”，则返回空字符串
 		if (StringUtils.matchesCharacter(contextPath, '/')) {
 			// Invalid case, but happens for includes on Jetty: silently adapt it.
 			contextPath = "";
 		}
+		// 进行Url编码
 		return decodeRequestString(request, contextPath);
 	}
 

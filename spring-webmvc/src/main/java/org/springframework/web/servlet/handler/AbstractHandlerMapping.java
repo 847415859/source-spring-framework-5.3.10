@@ -91,6 +91,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
+	// 路径匹配器
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	private final List<Object> interceptors = new ArrayList<>();
@@ -376,8 +377,11 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 */
 	@Override
 	protected void initApplicationContext() throws BeansException {
+		// 扩展，空实现
 		extendInterceptors(this.interceptors);
+		// 检测MappedInterceptor，添加到mappedInterceptors中
 		detectMappedInterceptors(this.adaptedInterceptors);
+		// 初始化拦截器
 		initInterceptors();
 	}
 
@@ -502,7 +506,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		if (handler == null) {
 			return null;
 		}
-		// Bean name or resolved handler?
+		// 如果handler是String类型，则从IOC容器中获取handler对象
 		if (handler instanceof String) {
 			String handlerName = (String) handler;
 			handler = obtainApplicationContext().getBean(handlerName);
@@ -512,7 +516,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		if (!ServletRequestPathUtils.hasCachedPath(request)) {
 			initLookupPath(request);
 		}
-
+		// 获取处理器执行链路
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
 		if (logger.isTraceEnabled()) {
@@ -521,7 +525,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		else if (logger.isDebugEnabled() && !DispatcherType.ASYNC.equals(request.getDispatcherType())) {
 			logger.debug("Mapped to " + executionChain.getHandler());
 		}
-
+		// 处理程序有CorsConfigurationSource || OPTIONS方法是否存在Origin和Access Control request method标头
 		if (hasCorsConfigurationSource(handler) || CorsUtils.isPreFlightRequest(request)) {
 			CorsConfiguration config = getCorsConfiguration(handler, request);
 			if (getCorsConfigurationSource() != null) {
@@ -603,15 +607,17 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
 		HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
-
+		// 获取适配的拦截器
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
+				// 请求匹配都按，则添加到链路中
 				if (mappedInterceptor.matches(request)) {
 					chain.addInterceptor(mappedInterceptor.getInterceptor());
 				}
 			}
 			else {
+				// 普通拦截器
 				chain.addInterceptor(interceptor);
 			}
 		}

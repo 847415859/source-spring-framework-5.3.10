@@ -48,11 +48,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 	private static final Object[] EMPTY_ARGS = new Object[0];
 
-
+	// 参数解析器
 	private HandlerMethodArgumentResolverComposite resolvers = new HandlerMethodArgumentResolverComposite();
-
+	// 参数名解析器
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
-
+	// 参数绑定工厂
 	@Nullable
 	private WebDataBinderFactory dataBinderFactory;
 
@@ -133,7 +133,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-		//*获取我们目标方法入参的值
+		// 获取我们目标方法入参的值
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
@@ -150,7 +150,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-		// 获取目标方法参数的描述数组对象
+		// 1.获取目标方法参数的描述数组对象
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
@@ -161,13 +161,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 		//循环我们得参数名数组
 		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
-			//为我们得MethodParameter设置参数名称探测器对象
+			// 为我们得MethodParameter设置参数名称探测器对象
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
 			args[i] = findProvidedArgument(parameter, providedArgs); // providedArgs
 			if (args[i] != null) {
 				continue;
 			}
-			// * 获取所有的参数解析器，然后筛选出合适的解析器
+			// 重要：获取所有的参数解析器，然后筛选出合适的解析器
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}

@@ -104,14 +104,16 @@ public class MultipartFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(
 			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
+		// 获取文件上传解析器
 		MultipartResolver multipartResolver = lookupMultipartResolver(request);
 
 		HttpServletRequest processedRequest = request;
+		// 判断是否是文件上传请求
 		if (multipartResolver.isMultipart(processedRequest)) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Resolving multipart request");
 			}
+			// 解析上传文件信息，转换成文件上传请求MultipartHttpServletRequest
 			processedRequest = multipartResolver.resolveMultipart(processedRequest);
 		}
 		else {
@@ -120,11 +122,12 @@ public class MultipartFilter extends OncePerRequestFilter {
 				logger.trace("Not a multipart request");
 			}
 		}
-
 		try {
+			// 执行后续过滤器链
 			filterChain.doFilter(processedRequest, response);
 		}
 		finally {
+			// 清理上传文件
 			if (processedRequest instanceof MultipartHttpServletRequest) {
 				multipartResolver.cleanupMultipart((MultipartHttpServletRequest) processedRequest);
 			}

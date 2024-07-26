@@ -71,29 +71,34 @@ public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturn
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 判断返回值类型是否为ModelAndView
 		return ModelAndView.class.isAssignableFrom(returnType.getParameterType());
 	}
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 判断返回值是否为空
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
 
 		ModelAndView mav = (ModelAndView) returnValue;
+		// view 是否是 String 类型
 		if (mav.isReference()) {
 			String viewName = mav.getViewName();
 			mavContainer.setViewName(viewName);
+			// 是否是重定向
 			if (viewName != null && isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
 		else {
+			// 处理 View 类型
 			View view = mav.getView();
 			mavContainer.setView(view);
+			// 重定向
 			if (view instanceof SmartView && ((SmartView) view).isRedirectView()) {
 				mavContainer.setRedirectModelScenario(true);
 			}
@@ -103,6 +108,7 @@ public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturn
 	}
 
 	/**
+	 * 判断是否是重定向
 	 * Whether the given view name is a redirect view reference.
 	 * The default implementation checks the configured redirect patterns and
 	 * also if the view name starts with the "redirect:" prefix.

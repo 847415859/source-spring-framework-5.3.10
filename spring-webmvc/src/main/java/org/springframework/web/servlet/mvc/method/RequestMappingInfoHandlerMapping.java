@@ -138,7 +138,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	@Override
 	protected void handleMatch(RequestMappingInfo info, String lookupPath, HttpServletRequest request) {
 		super.handleMatch(info, lookupPath, request);
-
+		// 获取请求的URI模板变量
 		RequestCondition<?> condition = info.getActivePatternsCondition();
 		if (condition instanceof PathPatternsRequestCondition) {
 			extractMatchDetails((PathPatternsRequestCondition) condition, lookupPath, request);
@@ -186,13 +186,18 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 		else {
 			bestPattern = condition.getPatterns().iterator().next();
+			// 获取模板变量  比如： /updateUser2/1 ->		id:1   供@PathVariable使用
 			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
+			// 获取矩阵变量  比如： /updateUser2/1;id=1 -> id:1
 			if (!getUrlPathHelper().shouldRemoveSemicolonContent()) {
+				// 提取出路径里UriTemplateVariables变量后的参数，设置到request属性中，供@MatrixVariable使用
 				request.setAttribute(MATRIX_VARIABLES_ATTRIBUTE, extractMatrixVariables(request, uriVariables));
 			}
+			// 编码
 			uriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
 		}
 		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern);
+		// 将uriVariables设置到request属性中
 		request.setAttribute(URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriVariables);
 	}
 

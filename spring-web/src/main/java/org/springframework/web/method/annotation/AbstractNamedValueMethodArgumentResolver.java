@@ -95,26 +95,31 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	@Nullable
 	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-		// 获得参数名称
+		// 【子类】获得参数名称，默认值等信息
 		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
-
+		// 通过 Spring EL 表达式解析参数名称
 		Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
 		if (resolvedName == null) {
 			throw new IllegalArgumentException(
 					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
 		}
-
+		// 【子类】解析参数名称，得到参数值
 		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
 		if (arg == null) {
+			// 默认值不为空，则使用默认值
 			if (namedValueInfo.defaultValue != null) {
+				// 利用 Spring EL 表达式解析默认值
 				arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
 			}
 			else if (namedValueInfo.required && !nestedParameter.isOptional()) {
+				// 没有参数值，没有默认值，参数是必须的，则进入缺失值的处理
 				handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
 			}
+			// 对null值的处理，boolean类型赋值false，基本类型抛异常
 			arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
 		}
+		// 如果参数为"", 但是有默认值，则使用默认值
 		else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
 			arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
 		}
@@ -122,6 +127,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		if (binderFactory != null) {
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
+				// 通过WebDataBinder的Converters将参数值类型转换成对应的类型
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
 			}
 			catch (ConversionNotSupportedException ex) {
@@ -135,10 +141,12 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 			// Check for null value after conversion of incoming argument value
 			if (arg == null && namedValueInfo.defaultValue == null &&
 					namedValueInfo.required && !nestedParameter.isOptional()) {
+				// 值进行转换之后，对缺失值的处理
 				handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, webRequest);
 			}
 		}
 
+		// 【子类】已经解析出参数值，方法留给子类实现
 		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
 
 		return arg;
@@ -150,7 +158,9 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
 		NamedValueInfo namedValueInfo = this.namedValueInfoCache.get(parameter);
 		if (namedValueInfo == null) {
-			namedValueInfo = createNamedValueInfo(parameter);   // 创建一个@RequestParam对应的RequestParamNamedValueInfo
+			// 根据注解，创建NamedValueInfo对象
+			// 创建一个@RequestParam对应的RequestParamNamedValueInfo对象
+			namedValueInfo = createNamedValueInfo(parameter);
 			namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);  // *参数名称解析
 			this.namedValueInfoCache.put(parameter, namedValueInfo);
 		}
@@ -192,6 +202,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		if (this.configurableBeanFactory == null || this.expressionContext == null) {
 			return value;
 		}
+		// Spring EL expression evaluation
 		String placeholdersResolved = this.configurableBeanFactory.resolveEmbeddedValue(value);
 		BeanExpressionResolver exprResolver = this.configurableBeanFactory.getBeanExpressionResolver();
 		if (exprResolver == null) {

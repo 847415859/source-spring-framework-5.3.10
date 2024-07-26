@@ -35,20 +35,21 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 返回值是 Callable 类型
 		return Callable.class.isAssignableFrom(returnType.getParameterType());
 	}
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 返回值是 null，直接结束
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
 
 		Callable<?> callable = (Callable<?>) returnValue;
+		// 调用异步管理器执行任务
 		WebAsyncUtils.getAsyncManager(webRequest).startCallableProcessing(callable, mavContainer);
 	}
-
 }

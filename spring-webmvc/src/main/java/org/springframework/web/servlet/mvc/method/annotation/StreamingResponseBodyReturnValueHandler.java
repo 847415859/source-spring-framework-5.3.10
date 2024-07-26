@@ -47,9 +47,11 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 返回值是
 		if (StreamingResponseBody.class.isAssignableFrom(returnType.getParameterType())) {
 			return true;
 		}
+		// ResponseEntity类型，body是StreamingResponseBody类型
 		else if (ResponseEntity.class.isAssignableFrom(returnType.getParameterType())) {
 			Class<?> bodyType = ResolvableType.forMethodParameter(returnType).getGeneric().resolve();
 			return (bodyType != null && StreamingResponseBody.class.isAssignableFrom(bodyType));
@@ -66,15 +68,18 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 			mavContainer.setRequestHandled(true);
 			return;
 		}
-
+		// 获取响应对象
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 		Assert.state(response != null, "No HttpServletResponse");
 		ServerHttpResponse outputMessage = new ServletServerHttpResponse(response);
-
+		//
 		if (returnValue instanceof ResponseEntity) {
 			ResponseEntity<?> responseEntity = (ResponseEntity<?>) returnValue;
+			// 状态码
 			response.setStatus(responseEntity.getStatusCodeValue());
+			// 响应头
 			outputMessage.getHeaders().putAll(responseEntity.getHeaders());
+			// 响应体
 			returnValue = responseEntity.getBody();
 			if (returnValue == null) {
 				mavContainer.setRequestHandled(true);
@@ -89,16 +94,17 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
 
 		Assert.isInstanceOf(StreamingResponseBody.class, returnValue, "StreamingResponseBody expected");
 		StreamingResponseBody streamingBody = (StreamingResponseBody) returnValue;
-
+		// 创建 StreamingResponseBodyTask
 		Callable<Void> callable = new StreamingResponseBodyTask(outputMessage.getBody(), streamingBody);
+		// 调用异步任管理器执行任务
 		WebAsyncUtils.getAsyncManager(webRequest).startCallableProcessing(callable, mavContainer);
 	}
 
 
 	private static class StreamingResponseBodyTask implements Callable<Void> {
-
+		// Response
 		private final OutputStream outputStream;
-
+		// 业务处理的响应
 		private final StreamingResponseBody streamingBody;
 
 		public StreamingResponseBodyTask(OutputStream outputStream, StreamingResponseBody streamingBody) {

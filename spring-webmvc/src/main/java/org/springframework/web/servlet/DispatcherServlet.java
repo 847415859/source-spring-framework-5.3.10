@@ -494,14 +494,23 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		// 文件上传
 		initMultipartResolver(context);
+		// 国际化
 		initLocaleResolver(context);
+		// 前端主题
 		initThemeResolver(context);
+		// 处理器映射
 		initHandlerMappings(context);
+		// 处理器适配器
 		initHandlerAdapters(context);
+		// 处理器异常解析器
 		initHandlerExceptionResolvers(context);
+		// 请求到视图名称的转换器
 		initRequestToViewNameTranslator(context);
+		// 视图解析器
 		initViewResolvers(context);
+		// FlashMap管理
 		initFlashMapManager(context);
 	}
 
@@ -586,10 +595,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
-
 		// 根据类型（多个）   默认true
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+			// 获取所有容器中的 HanderMapping 对象
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
 			if (!matchingBeans.isEmpty()) {
@@ -921,11 +930,12 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Override
 	protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// 请求日志打印
 		logRequest(request);
-
 		// Keep a snapshot of the request attributes in case of an include,
 		// to be able to restore the original attributes after the include.
 		Map<String, Object> attributesSnapshot = null;
+		// reuqest请求的属性是否包含 INCLUDE_REQUEST_URI_ATTRIBUTE
 		if (WebUtils.isIncludeRequest(request)) {
 			attributesSnapshot = new HashMap<>();
 			Enumeration<?> attrNames = request.getAttributeNames();
@@ -937,10 +947,13 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
-		// Make framework objects available to handlers and view objects.
+		// 请求放入 IOC 容器
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
+		// 区域解析器
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
+		// 主题解析器
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
+		// 主题源
 		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
 
 		if (this.flashMapManager != null) {
@@ -1024,25 +1037,25 @@ public class DispatcherServlet extends FrameworkServlet {
 		HttpServletRequest processedRequest = request;
 		HandlerExecutionChain mappedHandler = null;
 		boolean multipartRequestParsed = false;
-
+		// 获取异步管理器
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 
 		try {
 			ModelAndView mv = null;
 			Exception dispatchException = null;
-
 			try {
+				// 重要: 1.判断是否是multipart请求（文件上传）
 				processedRequest = checkMultipart(request);
+				// 如果是multipart请求，返回MultipartHttpServletRequest，则会 processedRequest != request
 				multipartRequestParsed = (processedRequest != request);
-
-				// 进行映射
+				// 重要：2.请求进行映射，找到最合适的Handler
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
+					// 如果没有找到，就返回404 或者 报错
 					noHandlerFound(processedRequest, response);
 					return;
 				}
-
-				// 找到最合适的HandlerAdapter
+				// 重要： 3.找到最合适的HandlerAdapter
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.  HTTP缓存相关
@@ -1054,13 +1067,13 @@ public class DispatcherServlet extends FrameworkServlet {
 						return;
 					}
 				}
-				// 前置拦截器
+				// 重要： 4.前置拦截器
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					// 返回false就不进行后续处理了
 					return;
 				}
 
-				// Actually invoke the handler.
+				// 重要：5.执行Handler
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
@@ -1068,7 +1081,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 				// 如果mv有  视图没有，给你设置默认视图
 				applyDefaultViewName(processedRequest, mv);
-				//后置拦截器
+				// 重要： 6.后置拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1079,7 +1092,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// making them available for @ExceptionHandler methods and other scenarios.
 				dispatchException = new NestedServletException("Handler dispatch failed", err);
 			}
-			// 渲染视图
+			// 重要：7.处理视图、解析异常
 			processDispatchResult(processedRequest, response, mappedHandler, mv, dispatchException);
 		}
 		catch (Exception ex) {
@@ -1142,7 +1155,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Did the handler return a view to render?
 		if (mv != null && !mv.wasCleared()) {
-			// 解析、渲染视图
+			// 解析、渲染结果视图
 			render(mv, request, response);
 			if (errorView) {
 				WebUtils.clearErrorRequestAttributes(request);
@@ -1158,7 +1171,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			// Concurrent handling started during a forward
 			return;
 		}
-
+		// 回调拦截器的 afterCompletion
 		if (mappedHandler != null) {
 			// Exception (if any) is already handled..   拦截器：AfterCompletion
 			mappedHandler.triggerAfterCompletion(request, response, null);
@@ -1191,12 +1204,15 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @see MultipartResolver#resolveMultipart
 	 */
 	protected HttpServletRequest checkMultipart(HttpServletRequest request) throws MultipartException {
+		// 根据 ContentType 判断是否为 Multipart 请求
 		if (this.multipartResolver != null && this.multipartResolver.isMultipart(request)) {
+			// 检查请求是否已经被解析成MultipartHttpServletRequest
 			if (WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class) != null) {
 				if (DispatcherType.REQUEST.equals(request.getDispatcherType())) {
 					logger.trace("Request already resolved to MultipartHttpServletRequest, e.g. by MultipartFilter");
 				}
 			}
+			// 检查文件上传异常
 			else if (hasMultipartException(request)) {
 				logger.debug("Multipart resolution previously failed for current request - " +
 						"skipping re-resolution for undisturbed error rendering");

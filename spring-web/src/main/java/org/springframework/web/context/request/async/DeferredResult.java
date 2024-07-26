@@ -200,6 +200,7 @@ public class DeferredResult<T> {
 	public final void setResultHandler(DeferredResultHandler resultHandler) {
 		Assert.notNull(resultHandler, "DeferredResultHandler is required");
 		// Immediate expiration check outside of the result lock
+		// 校验expired，请求是否过期
 		if (this.expired) {
 			return;
 		}
@@ -209,9 +210,12 @@ public class DeferredResult<T> {
 			if (this.expired) {
 				return;
 			}
+			// 异步执行的结果
 			resultToHandle = this.result;
+			// 检查DeferredResult的结果
 			if (resultToHandle == RESULT_NONE) {
 				// No result yet: store handler for processing once it comes in
+				// 结果为初始化的RESULT_NONE，即还没有获得结果
 				this.resultHandler = resultHandler;
 				return;
 			}
@@ -220,6 +224,7 @@ public class DeferredResult<T> {
 		// The decision is made within the result lock; just the handle call outside
 		// of it, avoiding any deadlock potential with Servlet container locks.
 		try {
+			// 处理结果
 			resultHandler.handleResult(resultToHandle);
 		}
 		catch (Throwable ex) {

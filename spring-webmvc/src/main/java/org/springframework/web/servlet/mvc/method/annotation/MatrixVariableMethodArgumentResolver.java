@@ -56,9 +56,11 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// @MatrixVariable
 		if (!parameter.hasParameterAnnotation(MatrixVariable.class)) {
 			return false;
 		}
+		// 如果参数是Map类型，则名称不能为空
 		if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 			MatrixVariable matrixVariable = parameter.getParameterAnnotation(MatrixVariable.class);
 			return (matrixVariable != null && StringUtils.hasText(matrixVariable.name()));
@@ -77,6 +79,7 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// 获取路径参数
 		Map<String, MultiValueMap<String, String>> pathParameters = (Map<String, MultiValueMap<String, String>>)
 				request.getAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
 		if (CollectionUtils.isEmpty(pathParameters)) {
@@ -85,17 +88,20 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueMeth
 
 		MatrixVariable ann = parameter.getParameterAnnotation(MatrixVariable.class);
 		Assert.state(ann != null, "No MatrixVariable annotation");
+		// 路径变量名称
 		String pathVar = ann.pathVar();
 		List<String> paramValues = null;
 
 		if (!pathVar.equals(ValueConstants.DEFAULT_NONE)) {
 			if (pathParameters.containsKey(pathVar)) {
+				// 根据变量名称和参数名称获取参数值
 				paramValues = pathParameters.get(pathVar).get(name);
 			}
 		}
 		else {
 			boolean found = false;
 			paramValues = new ArrayList<>();
+			// 遍历路径变量名，匹配参数名称，获取参数值
 			for (MultiValueMap<String, String> params : pathParameters.values()) {
 				if (params.containsKey(name)) {
 					if (found) {

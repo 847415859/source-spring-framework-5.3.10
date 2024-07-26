@@ -318,6 +318,7 @@ public abstract class CommonsFileUploadSupport {
 			for (MultipartFile file : files) {
 				if (file instanceof CommonsMultipartFile) {
 					CommonsMultipartFile cmf = (CommonsMultipartFile) file;
+					// 删除临时文件
 					cmf.getFileItem().delete();
 					LogFormatUtils.traceDebug(logger, traceOn ->
 							"Cleaning up part '" + cmf.getName() +

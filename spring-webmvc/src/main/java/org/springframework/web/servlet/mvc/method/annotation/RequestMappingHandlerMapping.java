@@ -366,7 +366,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 			RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 		// 将@RequestMapping注解属性的值构建成一个 RequestMappingInfo
 		RequestMappingInfo.Builder builder = RequestMappingInfo
-				//构建路径
+				//构建路径(会利用SpringEl表达式解析)
 				.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
 				//构建方法(get还是post等)
 				.methods(requestMapping.method())
@@ -415,12 +415,19 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		updateConsumesCondition(mapping, method);
 	}
 
+	/**
+	 * 更改接受条件
+	 * @param info
+	 * @param method
+	 */
 	private void updateConsumesCondition(RequestMappingInfo info, Method method) {
 		ConsumesRequestCondition condition = info.getConsumesCondition();
 		if (!condition.isEmpty()) {
 			for (Parameter parameter : method.getParameters()) {
+				// 获取参数上的 @RequestBody 注解
 				MergedAnnotation<RequestBody> annot = MergedAnnotations.from(parameter).get(RequestBody.class);
 				if (annot.isPresent()) {
+					// 获取 @RequestBody 注解的 required 属性值
 					condition.setBodyRequired(annot.getBoolean("required"));
 					break;
 				}
@@ -444,14 +451,16 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	protected CorsConfiguration initCorsConfiguration(Object handler, Method method, RequestMappingInfo mappingInfo) {
 		HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 		Class<?> beanType = handlerMethod.getBeanType();
+		// 获取 @CrossOrigin 注解
 		CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
 		CrossOrigin methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CrossOrigin.class);
 
 		if (typeAnnotation == null && methodAnnotation == null) {
 			return null;
 		}
-
+		// 创建 CorsConfiguration 对象
 		CorsConfiguration config = new CorsConfiguration();
+		// 更新 CorsConfiguration 对象（方法上会覆盖类上信息）
 		updateCorsConfig(config, typeAnnotation);
 		updateCorsConfig(config, methodAnnotation);
 

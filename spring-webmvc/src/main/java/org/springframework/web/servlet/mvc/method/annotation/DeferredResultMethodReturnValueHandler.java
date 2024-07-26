@@ -42,6 +42,7 @@ public class DeferredResultMethodReturnValueHandler implements HandlerMethodRetu
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		Class<?> type = returnType.getParameterType();
+		// 返回值类型是DeferredResult, ListenableFuture, CompletionStage
 		return (DeferredResult.class.isAssignableFrom(type) ||
 				ListenableFuture.class.isAssignableFrom(type) ||
 				CompletionStage.class.isAssignableFrom(type));
@@ -50,20 +51,22 @@ public class DeferredResultMethodReturnValueHandler implements HandlerMethodRetu
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 返回值是null, 直接结束请求
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
 
 		DeferredResult<?> result;
-
+		// DeferredResult 类型
 		if (returnValue instanceof DeferredResult) {
 			result = (DeferredResult<?>) returnValue;
 		}
+		// ListenableFuture 类型
 		else if (returnValue instanceof ListenableFuture) {
 			result = adaptListenableFuture((ListenableFuture<?>) returnValue);
 		}
+		// CompletionStage 类型
 		else if (returnValue instanceof CompletionStage) {
 			result = adaptCompletionStage((CompletionStage<?>) returnValue);
 		}
@@ -71,7 +74,7 @@ public class DeferredResultMethodReturnValueHandler implements HandlerMethodRetu
 			// Should not happen...
 			throw new IllegalStateException("Unexpected return value type: " + returnValue);
 		}
-
+		// 调用异步管理器执行任务
 		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(result, mavContainer);
 	}
 

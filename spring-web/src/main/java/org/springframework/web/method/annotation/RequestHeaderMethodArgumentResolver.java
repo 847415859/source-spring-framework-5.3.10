@@ -59,6 +59,7 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// @RequestHeader 注解，且不是 Map 类型
 		return (parameter.hasParameterAnnotation(RequestHeader.class) &&
 				!Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType()));
 	}
@@ -73,6 +74,7 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMetho
 	@Override
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		// request的headers中获取值
 		String[] headerValues = request.getHeaderValues(name);
 		if (headerValues != null) {
 			return (headerValues.length == 1 ? headerValues[0] : headerValues);

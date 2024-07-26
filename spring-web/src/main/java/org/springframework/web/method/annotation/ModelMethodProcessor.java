@@ -41,6 +41,7 @@ public class ModelMethodProcessor implements HandlerMethodArgumentResolver, Hand
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		// 是 Model 类型
 		return Model.class.isAssignableFrom(parameter.getParameterType());
 	}
 
@@ -55,6 +56,7 @@ public class ModelMethodProcessor implements HandlerMethodArgumentResolver, Hand
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 返回值是 Model 类型
 		return Model.class.isAssignableFrom(returnType.getParameterType());
 	}
 
@@ -66,6 +68,7 @@ public class ModelMethodProcessor implements HandlerMethodArgumentResolver, Hand
 			return;
 		}
 		else if (returnValue instanceof Model) {
+			// Model类型，将model的参数添加到ModelMap中
 			mavContainer.addAllAttributes(((Model) returnValue).asMap());
 		}
 		else {

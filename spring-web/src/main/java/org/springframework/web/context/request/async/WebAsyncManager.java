@@ -63,6 +63,7 @@ public final class WebAsyncManager {
 
 	private static final Object RESULT_NONE = new Object();
 
+	// 默认的任务执行器
 	private static final AsyncTaskExecutor DEFAULT_TASK_EXECUTOR =
 			new SimpleAsyncTaskExecutor(WebAsyncManager.class.getSimpleName());
 
@@ -76,11 +77,11 @@ public final class WebAsyncManager {
 
 	private static Boolean taskExecutorWarning = true;
 
-
+	// 异步请求
 	private AsyncWebRequest asyncWebRequest;
-
+	// 异步任务线程池
 	private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
-
+	// 任务
 	private volatile Object concurrentResult = RESULT_NONE;
 
 	private volatile Object[] concurrentResultContext;
@@ -92,8 +93,9 @@ public final class WebAsyncManager {
 	 */
 	private volatile boolean errorHandlingInProgress;
 
+	// 调用拦截器
 	private final Map<Object, CallableProcessingInterceptor> callableInterceptors = new LinkedHashMap<>();
-
+	// 延期结果拦截器
 	private final Map<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors = new LinkedHashMap<>();
 
 
@@ -281,7 +283,7 @@ public final class WebAsyncManager {
 
 		Assert.notNull(webAsyncTask, "WebAsyncTask must not be null");
 		Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
-
+		// 获取超时时间
 		Long timeout = webAsyncTask.getTimeout();
 		if (timeout != null) {
 			this.asyncWebRequest.setTimeout(timeout);
@@ -380,13 +382,16 @@ public final class WebAsyncManager {
 
 	private void setConcurrentResultAndDispatch(Object result) {
 		synchronized (WebAsyncManager.this) {
+			// 已经处理过，直接返回
 			if (this.concurrentResult != RESULT_NONE) {
 				return;
 			}
 			this.concurrentResult = result;
+			// 程序是否在处理异常
 			this.errorHandlingInProgress = (result instanceof Throwable);
 		}
 
+		// 已经处理过，直接返回
 		if (this.asyncWebRequest.isAsyncComplete()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Async result set but request already complete: " + formatRequestUri());
@@ -420,34 +425,39 @@ public final class WebAsyncManager {
 
 		Assert.notNull(deferredResult, "DeferredResult must not be null");
 		Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
-
+		// 获取更细粒度的超时时间控制，不存在时使用自定义的超时时间
 		Long timeout = deferredResult.getTimeoutValue();
 		if (timeout != null) {
 			this.asyncWebRequest.setTimeout(timeout);
 		}
-
+		// 整理拦截器
 		List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
+		// 添加自定义拦截器
 		interceptors.add(deferredResult.getInterceptor());
 		interceptors.addAll(this.deferredResultInterceptors.values());
+		// 添加超时拦截器
 		interceptors.add(timeoutDeferredResultInterceptor);
-
+		// 封装为拦截器链
 		final DeferredResultInterceptorChain interceptorChain = new DeferredResultInterceptorChain(interceptors);
-
+		// 添加超时处理
 		this.asyncWebRequest.addTimeoutHandler(() -> {
 			try {
+				// 触发超时拦截器
 				interceptorChain.triggerAfterTimeout(this.asyncWebRequest, deferredResult);
 			}
 			catch (Throwable ex) {
 				setConcurrentResultAndDispatch(ex);
 			}
 		});
-
+		// 添加错误处理器
 		this.asyncWebRequest.addErrorHandler(ex -> {
 			if (!this.errorHandlingInProgress) {
 				try {
+					// 触发错误拦截器
 					if (!interceptorChain.triggerAfterError(this.asyncWebRequest, deferredResult, ex)) {
 						return;
 					}
+					// 触发超时拦截器
 					deferredResult.setErrorResult(ex);
 				}
 				catch (Throwable interceptorEx) {
@@ -455,17 +465,22 @@ public final class WebAsyncManager {
 				}
 			}
 		});
-
+		// 任务完成处理器
 		this.asyncWebRequest.addCompletionHandler(()
 				-> interceptorChain.triggerAfterCompletion(this.asyncWebRequest, deferredResult));
-
+		// 调用拦截器的beforeConcurrentHandling
 		interceptorChain.applyBeforeConcurrentHandling(this.asyncWebRequest, deferredResult);
+		// 执行异步任务
 		startAsyncProcessing(processingContext);
 
 		try {
+			// 调用拦截器的applyPreProcess
 			interceptorChain.applyPreProcess(this.asyncWebRequest, deferredResult);
+			// 设置结果处理器
 			deferredResult.setResultHandler(result -> {
+				// 调用拦截器的applyPostProcess
 				result = interceptorChain.applyPostProcess(this.asyncWebRequest, deferredResult, result);
+				// 设置结果，并且分发获取结果的请求
 				setConcurrentResultAndDispatch(result);
 			});
 		}
@@ -476,10 +491,14 @@ public final class WebAsyncManager {
 
 	private void startAsyncProcessing(Object[] processingContext) {
 		synchronized (WebAsyncManager.this) {
+			// 设置结果为 RESULT_NONE，表示没有结果
 			this.concurrentResult = RESULT_NONE;
+			// 设置执行上下文
 			this.concurrentResultContext = processingContext;
+			// 标记程序未在处理中
 			this.errorHandlingInProgress = false;
 		}
+		// 执行异步任务
 		this.asyncWebRequest.startAsync();
 
 		if (logger.isDebugEnabled()) {

@@ -583,6 +583,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			// 从servlet上下文根据<contextAttribute>名字从域里面获取
 			wac = findWebApplicationContext();
 		}
+		//  如果没有WebApplicationContext，则会创建一个全新的WebApplicationContext
 		if (wac == null) {
 			// xml会在这里创建
 			wac = createWebApplicationContext(rootContext);
@@ -645,6 +646,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
+		// 加载IOC容器的承载实现类
 		Class<?> contextClass = getContextClass();
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException(
@@ -652,21 +654,25 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					"': custom WebApplicationContext class [" + contextClass.getName() +
 					"] is not of type ConfigurableWebApplicationContext");
 		}
+		// 反射实例化
 		ConfigurableWebApplicationContext wac =
 				(ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
-
+		// 设置上下文环境
 		wac.setEnvironment(getEnvironment());
 		wac.setParent(parent);
+		// 获取、设置配置文件的路径
 		String configLocation = getContextConfigLocation();
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
 		}
+		// 刷新IOC容器 - refresh
 		configureAndRefreshWebApplicationContext(wac);
 
 		return wac;
 	}
 
 	protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac) {
+		// 设置容器Id
 		if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
 			// 设置id
 			if (this.contextId != null) {
@@ -681,8 +687,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// 设置servlet上下文
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
+		// 此处就是上面的getNamespace方法
 		wac.setNamespace(getNamespace());
-		// 监听器  委托设计模式
+		// 这里添加了一个上下文刷新的监听器(监听器  委托设计模式)
 		wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 
 		// 将init-param设置到Environment中
@@ -692,8 +699,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		// 空方法可扩展
 		postProcessWebApplicationContext(wac);
-		// 容器启动前初始化
+		// 容器启动前初始化，实现
 		applyInitializers(wac);
+		// Spring IOC容器刷新
 		wac.refresh();
 	}
 
@@ -985,16 +993,17 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		long startTime = System.currentTimeMillis();
 		Throwable failureCause = null;
-
+		// 获取区域上下文环境，没有就创建
 		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
 		LocaleContext localeContext = buildLocaleContext(request);
-
+		// 获取请求属性，没有就创建
 		RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
 		ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
-
+		// 获取异步管理器，没有就创建
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+		// 设置拦截器，
 		asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
-
+		// 将LocaleContext和RequestAttributes绑定到线程中（TreadLocal）
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
@@ -1010,11 +1019,13 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 
 		finally {
+			// 重置 LocaleContext和RequestAttributes 到线程中
 			resetContextHolders(request, previousLocaleContext, previousAttributes);
 			if (requestAttributes != null) {
 				requestAttributes.requestCompleted();
 			}
 			logResult(request, response, failureCause, asyncManager);
+			// 发布 ServletRequestHandledEvent 事件
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}
@@ -1198,6 +1209,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 			if (request != null) {
 				HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+				// 将LocaleContext和RequestAttributes绑定到线程中（TreadLocal）
 				initContextHolders(request, buildLocaleContext(request),
 						buildRequestAttributes(request, response, null));
 			}
@@ -1206,6 +1218,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		public <T> void postProcess(NativeWebRequest webRequest, Callable<T> task, Object concurrentResult) {
 			HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 			if (request != null) {
+				// 解除LocaleContext和RequestAttributes的绑定
 				resetContextHolders(request, null, null);
 			}
 		}
